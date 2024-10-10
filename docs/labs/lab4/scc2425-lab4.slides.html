@@ -1,12 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
 
-<title>scc2425-lab3</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 
+<title>scc2425-lab4 slides</title><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
+<!-- General and theme style sheets -->
+<link rel="stylesheet" href="https://unpkg.com/reveal.js@4.0.2/dist/reveal.css">
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+}
+</script>
 
 <style type="text/css">
     pre { line-height: 125%; }
@@ -14455,103 +14469,145 @@ all of MD as it is not optimized for dense, information rich UIs.
 </style>
 
 <style type="text/css">
-/* Force rendering true colors when outputing to pdf */
-* {
-  -webkit-print-color-adjust: exact;
-}
-
-/* Misc */
 a.anchor-link {
-  display: none;
+   display: none;
+}
+.highlight  {
+    margin: 0.4em;
+}
+.jp-Notebook {
+    padding: 0;
+}
+:root {
+    --jp-ui-font-size1: 20px;       /* instead of 14px */
+    --jp-content-font-size1: 20px;  /* instead of 14px */
+    --jp-code-font-size: 19px;      /* instead of 13px */
+    --jp-cell-prompt-width: 110px;  /* instead of 64px */
+}
+@media print {
+  body {
+    margin: 0;
+  }
+}
+</style>
+
+<style type="text/css">
+/* Overrides of notebook CSS for static HTML export */
+.reveal {
+  font-size: 160%;
+}
+.reveal table {
+  font-size: var(--jp-ui-font-size1);
+}
+.reveal pre {
+  width: inherit;
+  padding: 0.4em;
+  margin: 0px;
+  font-family: monospace, sans-serif;
+  font-size: 80%;
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.reveal pre code {
+  padding: 0px;
+}
+.reveal section img {
+  border: 0px solid black;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
+}
+.reveal .slides {
+  text-align: left;
+}
+.reveal.fade {
+  opacity: 1;
+}
+.reveal .progress {
+  position: static;
 }
 
-/* Input area styling */
-.jp-InputArea {
-  overflow: hidden;
+div.jp-InputArea-editor {
+  padding: 0.06em;
 }
 
-.jp-InputArea-editor {
-  overflow: hidden;
+div.code_cell {
+  background-color: transparent;
 }
 
-.CodeMirror.cm-s-jupyter .highlight pre {
-/* weird, but --jp-code-padding defined to be 5px but 4px horizontal padding is hardcoded for pre.CodeMirror-line */
-  padding: var(--jp-code-padding) 4px;
+div.output_area pre {
+  font-family: monospace, sans-serif;
+  font-size: 80%;
+}
+
+div.jp-OutputPrompt {
+  /* 5px right shift to account for margin in parent container */
+  margin: 5px 5px 0 0;
+}
+
+.reveal div.highlight {
   margin: 0;
-
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
-
 }
 
-.jp-OutputArea-output pre {
-  line-height: inherit;
-  font-family: inherit;
-}
-
-.jp-RenderedText pre {
-  color: var(--jp-content-font-color1);
+.reveal div.highlight > pre {
+  margin: 0;
+  width: 100%;
   font-size: var(--jp-code-font-size);
 }
 
-/* Using table instead of flexbox so that we can use break-inside property */
-/* CSS rules under this comment should not be required anymore after we move to the JupyterLab 4.0 CSS */
-
-
-.jp-CodeCell.jp-mod-outputsScrolled .jp-OutputArea-prompt {
-  min-width: calc(
-    var(--jp-cell-prompt-width) - var(--jp-private-cell-scrolling-output-offset)
-  );
+.reveal div.jp-OutputArea-output > pre {
+  margin: 0;
+  width: 90%;
+  font-size: var(--jp-code-font-size);
+  box-shadow: none;
 }
 
-.jp-OutputArea-child {
-  display: table;
-  width: 100%;
+/* Reveal navigation controls */
+
+.reveal .controls .navigate-left,
+.reveal .controls .navigate-left.enabled {
+  border-right-color: #727272;
+}
+.reveal .controls .navigate-left.enabled:hover,
+.reveal .controls .navigate-left.enabled.enabled:hover {
+  border-right-color: #dfdfdf;
+}
+.reveal .controls .navigate-right,
+.reveal .controls .navigate-right.enabled {
+  border-left-color: #727272;
+}
+.reveal .controls .navigate-right.enabled:hover,
+.reveal .controls .navigate-right.enabled.enabled:hover {
+  border-left-color: #dfdfdf;
+}
+.reveal .controls .navigate-up,
+.reveal .controls .navigate-up.enabled {
+  border-bottom-color: #727272;
+}
+.reveal .controls .navigate-up.enabled:hover,
+.reveal .controls .navigate-up.enabled.enabled:hover {
+  border-bottom-color: #dfdfdf;
+}
+.reveal .controls .navigate-down,
+.reveal .controls .navigate-down.enabled {
+  border-top-color: #727272;
+}
+.reveal .controls .navigate-down.enabled:hover,
+.reveal .controls .navigate-down.enabled.enabled:hover {
+  border-top-color: #dfdfdf;
+}
+.reveal .progress span {
+  background: #727272;
 }
 
-.jp-OutputPrompt {
-  display: table-cell;
-  vertical-align: top;
-  min-width: var(--jp-cell-prompt-width);
+/* Scrollbars */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-body[data-format='mobile'] .jp-OutputPrompt {
-  display: table-row;
+::-webkit-scrollbar * {
+  background: transparent;
 }
-
-.jp-OutputArea-output {
-  display: table-cell;
-  width: 100%;
-}
-
-body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
-  display: table-row;
-}
-
-.jp-OutputArea-output.jp-OutputArea-executeResult {
-  width: 100%;
-}
-
-/* Hiding the collapser by default */
-.jp-Collapser {
-  display: none;
-}
-
-@page {
-    margin: 0.5in; /* Margin for each printed piece of paper */
-}
-
-@media print {
-  .jp-Cell-inputWrapper,
-  .jp-Cell-outputWrapper {
-    display: block;
-  }
-
-  .jp-OutputArea-child {
-    break-inside: avoid-page;
-  }
+::-webkit-scrollbar-thumb {
+  background: #727272 !important;
 }
 </style>
 
@@ -14588,544 +14644,434 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     }
     init_mathjax();
     </script>
-    <!-- End of mathjax configuration --></head>
+    <!-- End of mathjax configuration --><!-- Reveal Theme -->
+<link rel="stylesheet" href="https://unpkg.com/reveal.js@4.0.2/dist/theme/simple.css" id="theme">
+
+</head>
+
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 
+<div class="reveal">
+<div class="slides"><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Cloud-Computing-Systems">Cloud Computing Systems<a class="anchor-link" href="#Cloud-Computing-Systems">&#182;</a></h1><h2 id="2024/25">2024/25<a class="anchor-link" href="#2024/25">&#182;</a></h2><p>Lab 3
+<h1 id="Cloud-Computing-Systems">Cloud Computing Systems<a class="anchor-link" href="#Cloud-Computing-Systems">&#182;</a></h1><h2 id="2024/25">2024/25<a class="anchor-link" href="#2024/25">&#182;</a></h2><p>Lab 4
 <a href="https://smduarte.github.io/scc2425/">https://smduarte.github.io/scc2425/</a></p>
 <p>Sérgio Duarte, Kevin Gallagher</p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h1><ul>
-<li>Create a Cosmos DB account / database and container @ Azure;</li>
-<li>Create the resources for the project by storing data at Azure Cosmos DB;</li>
-<li>Start converting Tukano to leverage CosmosDB NoSQL</li>
+<li>Create a Azure Redis for Cache account @ Azure;</li>
+<li>Try AzureRedisCache to store various kinds of data in cache.</li>
+<li>Continue converting Tukano to run on Azure; think of leveraging Redis to improve latency.</li>
 </ul>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h1><ul>
-<li><strong>Create a Cosmos DB account / database and container @ Azure;</strong></li>
-<li>Start converting Tukano to leverage CosmosDB NoSQL</li>
+<li><strong>Create a Azure Redis for Cache account @ Azure;</strong></li>
+<li>Try AzureRedisCache to store various kinds of data in cache.</li>
+<li>Continue converting Tukano to run on Azure; think of leveraging Redis to improve latency.</li>
 </ul>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(1)">Add CosmosDB Account (1)<a class="anchor-link" href="#Add-CosmosDB-Account-(1)">&#182;</a></h1><p><img src="cosmosdb-1.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache">Create Azure Redis for Cache<a class="anchor-link" href="#Create-Azure-Redis-for-Cache">&#182;</a></h1><p><img src="redis-1.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(2)">Add CosmosDB Account (2)<a class="anchor-link" href="#Add-CosmosDB-Account-(2)">&#182;</a></h1><p><img src="cosmosdb-2.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache-(2)">Create Azure Redis for Cache (2)<a class="anchor-link" href="#Create-Azure-Redis-for-Cache-(2)">&#182;</a></h1><p><img src="redis-2.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(3)">Add CosmosDB Account (3)<a class="anchor-link" href="#Add-CosmosDB-Account-(3)">&#182;</a></h1><p><img src="cosmosdb-3.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache-(3)">Create Azure Redis for Cache (3)<a class="anchor-link" href="#Create-Azure-Redis-for-Cache-(3)">&#182;</a></h1><p><img src="redis-3.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(4)">Add CosmosDB Account (4)<a class="anchor-link" href="#Add-CosmosDB-Account-(4)">&#182;</a></h1><p><img src="cosmosdb-4.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache-(4)">Create Azure Redis for Cache (4)<a class="anchor-link" href="#Create-Azure-Redis-for-Cache-(4)">&#182;</a></h1><p><img src="redis-4.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(5)">Add CosmosDB Account (5)<a class="anchor-link" href="#Add-CosmosDB-Account-(5)">&#182;</a></h1><p><img src="cosmosdb-5.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache-(5)">Create Azure Redis for Cache (5)<a class="anchor-link" href="#Create-Azure-Redis-for-Cache-(5)">&#182;</a></h1><p><img src="redis-5.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(6)">Add CosmosDB Account (6)<a class="anchor-link" href="#Add-CosmosDB-Account-(6)">&#182;</a></h1><p><img src="cosmosdb-6.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache:-URL">Create Azure Redis for Cache: URL<a class="anchor-link" href="#Create-Azure-Redis-for-Cache:-URL">&#182;</a></h1><p><img src="redis-6.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-CosmosDB-Account-(7)">Add CosmosDB Account (7)<a class="anchor-link" href="#Add-CosmosDB-Account-(7)">&#182;</a></h1><p><img src="cosmosdb-7.png" width="75%"></img></p>
+<h1 id="Create-Azure-Redis-for-Cache:-Key">Create Azure Redis for Cache: Key<a class="anchor-link" href="#Create-Azure-Redis-for-Cache:-Key">&#182;</a></h1><p><img src="redis-7.png" width="75%"></img></p>
 
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Note: This takes time...a several minutes sometimes.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(1)">Add Database + Container (1)<a class="anchor-link" href="#Add-Database-+-Container-(1)">&#182;</a></h1><p><img src="cosmosdb-8.png" width="75%"></img></p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(2)">Add Database + Container (2)<a class="anchor-link" href="#Add-Database-+-Container-(2)">&#182;</a></h1><p><img src="cosmosdb-9.png" width="75%"></img></p>
-<h3 id="A-database-may-include-a-set-of-containers.-A-container-can-be-a-collection,-table,-graph,-etc.">A database may include a set of containers. A container can be a <em>collection</em>, <em>table</em>, <em>graph</em>, etc.<a class="anchor-link" href="#A-database-may-include-a-set-of-containers.-A-container-can-be-a-collection,-table,-graph,-etc.">&#182;</a></h3>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(3)">Add Database + Container (3)<a class="anchor-link" href="#Add-Database-+-Container-(3)">&#182;</a></h1><p><img src="cosmosdb-10.png" width="75%"></img></p>
-<p>A container is <strong>horizontally partitioned</strong> across multiple machines according to the <strong>partition key</strong>.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(4)">Add Database + Container (4)<a class="anchor-link" href="#Add-Database-+-Container-(4)">&#182;</a></h1><p>Cosmos DB throughput is provisioned.</p>
-<p>Better use at the database level: *<strong>first 1000 RU/s are free</strong>*.</p>
-<p><strong>Minimum</strong>: 400 RU/s.</p>
-<p>Reading 1 KB document costs 1 RU.</p>
-<p><a href="https://docs.microsoft.com/en-us/azure/cosmos-db/request-units">Info on request units</a></p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="cosmosdb-11.png" width="45%"></img></p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(5)">Add Database + Container (5)<a class="anchor-link" href="#Add-Database-+-Container-(5)">&#182;</a></h1><p>By default, CosmosDB indexes every property, of every item, and enforces range indexes for any string or number in all containers.</p>
-<p>It is possible to override the default policy by:</p>
-<ul>
-<li><p>Overriding the indexing mode: support for consistent, lazy (where indices are updated in background), none;</p>
-</li>
-<li><p>Specifying that some properties do not need to be indexed, using the exclude path.</p>
-</li>
-</ul>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Add-Database-+-Container-(6)">Add Database + Container (6)<a class="anchor-link" href="#Add-Database-+-Container-(6)">&#182;</a></h1><p><img src="cosmosdb-12-1.png" width="45%"></img></p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="cosmosdb-12-2.png" width="45%"></img></p>
-<h3 id="The-partition-key-allows-to-control-which-items-will-be-co-located...">The partition key allows to control which items will be co-located...<a class="anchor-link" href="#The-partition-key-allows-to-control-which-items-will-be-co-located...">&#182;</a></h3>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Note: Some data models support &quot;transactions&quot;, often with limitations, where atomic updates are only available for items belonging to the same partition. The partition key is important for this kind of usage.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Cosmos-DB-account:-access-keys-(for-code)">Cosmos DB account: access keys (for code)<a class="anchor-link" href="#Cosmos-DB-account:-access-keys-(for-code)">&#182;</a></h1><p><img src="cosmosdb-13.png" width="75%"></img></p>
-
-</div>
-</div>
-</div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h1><ul>
-<li>Create a Cosmos DB account / database and container @ Azure;</li>
-<li><strong>Create the resources for the project by storing data at Azure Cosmos DB;</strong></li>
-<li>Start converting Tukano to leverage CosmosDB NoSQL</li>
+<li>Create a Azure Redis for Cache account @ Azure;</li>
+<li><strong>Try  AzureRedisCache to store various kinds of data in cache.</strong></li>
+<li>Continue converting Tukano to run on Azure; think of leveraging Redis to improve latency.</li>
 </ul>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Accessing-Cosmos-DB:-useful-links">Accessing Cosmos DB: useful links<a class="anchor-link" href="#Accessing-Cosmos-DB:-useful-links">&#182;</a></h1><p>We will use the library provided by Microsoft.</p>
+<h1 id="Accessing-Azure-Cache-for-Redis:-useful-links">Accessing Azure Cache for Redis: useful links<a class="anchor-link" href="#Accessing-Azure-Cache-for-Redis:-useful-links">&#182;</a></h1><p>We will use the library provided by Microsoft.</p>
 <p>Java Docs available at:</p>
 <ul>
-<li><a href="https://azuresdkdocs.blob.core.windows.net/web/java/azure-cosmos/latest/index.html">https://azuresdkdocs.blob.core.windows.net/web/java/azure-cosmos/latest/index.html</a></li>
+<li><a href="https://www.javadoc.io/doc/redis.clients/jedis/4.2.3">https://www.javadoc.io/doc/redis.clients/jedis/4.2.3</a></li>
 </ul>
 <p>Overview on how to use at:</p>
 <ul>
-<li><a href="https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-java">https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-java</a></li>
-</ul>
-<p>Cosmos DB SQL cheat sheet:</p>
-<ul>
-<li><a href="https://go.microsoft.com/fwlink/?LinkId=623215">https://go.microsoft.com/fwlink/?LinkId=623215</a></li>
+<li><a href="https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-java-get-started">https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-java-get-started</a></li>
 </ul>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h1><ul>
-<li>Create a StorageAccount + Blob Container @ Azure;**</li>
-<li><strong>Rewrite last week's sample project to use the blob storage service</strong></li>
-<li>Start converting Tukano to leverage Azure</li>
-</ul>
+<h1 id="Redis-datatypes">Redis datatypes<a class="anchor-link" href="#Redis-datatypes">&#182;</a></h1><p><a href="https://redis.io/topics/data-types">https://redis.io/topics/data-types</a></p>
+<ol>
+<li>Key/Value String pairs</li>
+<li>Lists and Sets (sorted and unsorted) of Strings</li>
+<li>Counters</li>
+<li>Hashes (similar to a struct or map)</li>
+<li>Probabilistic data structures, such as HyperLogLogs, Bloom filters, Cuckoo filters, etc).</li>
+</ol>
+<p>Most values need to be stored as strings. Easily resolved by using JSON as the external representation
+of the data.</p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Maven-dependencies">Maven dependencies<a class="anchor-link" href="#Maven-dependencies">&#182;</a></h1><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;groupId&gt;</span>com.azure<span class="nt">&lt;/groupId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;artifactId&gt;</span>azure-cosmos<span class="nt">&lt;/artifactId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;version&gt;</span>4.63.3<span class="nt">&lt;/version&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;artifactId&gt;</span>slf4j-api<span class="nt">&lt;/artifactId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;version&gt;</span>2.0.16<span class="nt">&lt;/version&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
-<span class="w">    </span><span class="nt">&lt;dependency&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;artifactId&gt;</span>slf4j-simple<span class="nt">&lt;/artifactId&gt;</span>
-<span class="w">    	</span><span class="nt">&lt;version&gt;</span>2.0.16<span class="nt">&lt;/version&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/dependency&gt;</span>
+<h1 id="Maven-dependencies">Maven dependencies<a class="anchor-link" href="#Maven-dependencies">&#182;</a></h1><p>This for for talking to Redis</p>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>redis.clients<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>jedis<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>5.0.1<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+<p>For serializing objects to JSON</p>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>jackson-core<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>2.15.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>jackson-databind<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>2.15.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-1:-create-client-to-cosmos-DB-(1)">Step 1: create client to cosmos DB (1)<a class="anchor-link" href="#Step-1:-create-client-to-cosmos-DB-(1)">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">CONNECTION_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span><span class="w"> </span><span class="c1">// Replace with values from the Azure portal</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DB_KEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span><span class="w"> </span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">DB_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span>
-</pre></div>
+<h1 id="Step-1:-create-client-to-Redis">Step 1: create client to Redis<a class="anchor-link" href="#Step-1:-create-client-to-Redis">&#182;</a></h1><h3 id="Alternatives:">Alternatives:<a class="anchor-link" href="#Alternatives:">&#182;</a></h3><ol>
+<li><p>Create a single client to Redis:</p>
+<p>A client has a connection to the Redis server and it is not thread-safe.</p>
+<p><strong>- Not a good option for application servers.</strong><br><br></p>
+</li>
+<li><p>Use a pool of clients to Redis, which can be shared by multiple threads.</p>
+</li>
+</ol>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-1:-create-client-to-cosmos-DB-(1)">Step 1: create client to cosmos DB (1)<a class="anchor-link" href="#Step-1:-create-client-to-cosmos-DB-(1)">&#182;</a></h1><div class="highlight"><pre><span></span><span class="n">CosmosClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CosmosClientBuilder</span><span class="p">()</span>
-<span class="w">         </span><span class="p">.</span><span class="na">endpoint</span><span class="p">(</span><span class="n">CONNECTION_URL</span><span class="p">)</span>
-<span class="w">         </span><span class="p">.</span><span class="na">key</span><span class="p">(</span><span class="n">DB_KEY</span><span class="p">)</span>
-<span class="w">         </span><span class="p">.</span><span class="na">directMode</span><span class="p">()</span><span class="w"> </span><span class="c1">// comment this if not to use direct mode</span>
-<span class="w">         </span><span class="p">.</span><span class="na">consistencyLevel</span><span class="p">(</span><span class="n">ConsistencyLevel</span><span class="p">.</span><span class="na">SESSION</span><span class="p">)</span>
-<span class="w">         </span><span class="p">.</span><span class="na">connectionSharingAcrossClientsEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
-<span class="w">         </span><span class="p">.</span><span class="na">contentResponseOnWriteEnabled</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="c1">// On write, return the object written</span>
-<span class="w">         </span><span class="p">.</span><span class="na">buildClient</span><span class="p">();</span>
-</pre></div>
+<h1 id="Step-1:-create-pool-of-clients-to-Redis">Step 1: create pool of clients to Redis<a class="anchor-link" href="#Step-1:-create-pool-of-clients-to-Redis">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">JedisPool</span><span class="w"> </span><span class="n">instance</span><span class="p">;</span>
 
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-2:-get-reference-to-container">Step 2: get reference to container<a class="anchor-link" href="#Step-2:-get-reference-to-container">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">CONTAINER_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;users&quot;</span><span class="p">;</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">synchronized</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">JedisPool</span><span class="w"> </span><span class="nf">getCachePool</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">instance</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">instance</span><span class="p">;</span>
 
-<span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">getDatabase</span><span class="p">(</span><span class="n">DB_NAME</span><span class="p">);</span>
-<span class="n">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="na">getContainer</span><span class="p">(</span><span class="w"> </span><span class="n">CONTAINER_NAME</span><span class="p">);</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-3:-User-Class">Step 3: User Class<a class="anchor-link" href="#Step-3:-User-Class">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">User</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">pwd</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">;</span><span class="w">	</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">displayName</span><span class="p">;</span>
-
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">poolConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JedisPoolConfig</span><span class="p">();</span>
+<span class="w">    </span><span class="n">poolConfig</span><span class="p">.</span><span class="na">setMaxTotal</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
+<span class="w">    </span><span class="n">poolConfig</span><span class="p">.</span><span class="na">setMaxIdle</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
+<span class="w">    </span><span class="n">poolConfig</span><span class="p">.</span><span class="na">setMinIdle</span><span class="p">(</span><span class="mi">16</span><span class="p">);</span>
 <span class="w">    </span><span class="p">...</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-3:-User-Class-(What's-actually-stored)">Step 3: User Class (What's actually stored)<a class="anchor-link" href="#Step-3:-User-Class-(What's-actually-stored)">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">User</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">_rid</span><span class="p">;</span><span class="w"> </span><span class="c1">// Cosmos generated unique id of item</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">_ts</span><span class="p">;</span><span class="w"> </span><span class="c1">// timestamp of the last update to the item</span>
-
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">pwd</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">;</span><span class="w">	</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">displayName</span><span class="p">;</span>
-
-<span class="w">    </span><span class="p">...</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="highlight"><pre><span></span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">_rid</span><span class="p">;</span><span class="w"> </span><span class="c1">// Cosmos generated unique id of item</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">_ts</span><span class="p">;</span><span class="w"> </span><span class="c1">// timestamp of the last update to the item</span>
-</pre></div>
-<p>Include these fields in your database objects (when reading into) if your application considers this information useful, for instance to manage a cache.</p>
-<p>It is possible to use two classes, one that includes the CosmosDB fields, the other without them. The drawback is the need to add methods/constructors to perform conversions between the two types.</p>
-<p>It is also possible to class inheritance, by defining the other class to extend the User class by including the new fields. Check the sample code, for an actual example.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-4:-write-an-item">Step 4: write an item<a class="anchor-link" href="#Step-4:-write-an-item">&#182;</a></h1><div class="highlight"><pre><span></span><span class="n">CosmosItemResponse</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">users</span><span class="p">.</span><span class="na">createItem</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
-<span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="na">getStatusCode</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">300</span><span class="p">)</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="na">getItem</span><span class="p">();</span>
-<span class="k">else</span>
-<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Exception</span><span class="p">(</span><span class="s">&quot;ERROR:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">res</span><span class="p">.</span><span class="na">getStatusCode</span><span class="p">());</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Note: Calls return HTTP status codes that indicate <em>success</em> (2XX) or <em>failure</em> (&gt;=300)</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Step-5:-read-items">Step 5: read items<a class="anchor-link" href="#Step-5:-read-items">&#182;</a></h1><div class="highlight"><pre><span></span><span class="n">CosmosPagedIterable</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">users</span><span class="p">.</span><span class="na">queryItems</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;SELECT * FROM users WHERE users.id=\&quot;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;\&quot;&quot;</span><span class="p">,</span><span class="w"> </span>
-<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">CosmosQueryRequestOptions</span><span class="p">(),</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
-
-<span class="k">for</span><span class="p">(</span><span class="n">User</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+<span class="w">    </span><span class="n">poolConfig</span><span class="p">.</span><span class="na">setBlockWhenExhausted</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+<span class="w">    </span><span class="n">instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JedisPool</span><span class="p">(</span><span class="n">poolConfig</span><span class="p">,</span><span class="w"> </span><span class="n">RedisHostname</span><span class="p">,</span><span class="w"> </span><span class="n">REDIS_PORT</span><span class="p">,</span><span class="w"> </span><span class="n">REDIS_TIMEOUT</span><span class="p">,</span><span class="w"> </span><span class="n">RedisKey</span><span class="p">,</span><span class="w"> </span><span class="n">REDIS_USE_TLS</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">instance</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Note: Despite choosing a NoSQL database backend, CosmosDB provides a query language that is a subset dialect of SQL.</p>
+<h1 id="Step-2:-Use-client-from-Jedis-pool">Step 2: Use client from Jedis pool<a class="anchor-link" href="#Step-2:-Use-client-from-Jedis-pool">&#182;</a></h1><p>Retrive a client from pool with a <strong><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/language/try-with-resources.html">try with resources</a></strong> block</p>
+<div class="highlight"><pre><span></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Jedis</span><span class="w"> </span><span class="n">jedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RedisCache</span><span class="p">.</span><span class="na">getCachePool</span><span class="p">().</span><span class="na">getResource</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Execute operations with a client to the Redis server</span>
+
+<span class="p">}</span>
+</pre></div>
+<p>The client will be released automatically back to the pool...</p>
+
+</div>
+</div>
+</div>
+</div></section></section><section ><section >
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Step-3:-Write-and-Read-a-key/value-pair">Step 3: Write and Read a key/value pair<a class="anchor-link" href="#Step-3:-Write-and-Read-a-key/value-pair">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="n">user1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="s">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1234&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;john@nova.pt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;John Smith&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Jedis</span><span class="w"> </span><span class="n">jedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RedisCache</span><span class="p">.</span><span class="na">getCachePool</span><span class="p">().</span><span class="na">getResource</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">key1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;users:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="na">id</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">value1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="w"> </span><span class="n">user1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">jedis</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="w"> </span><span class="n">key1</span><span class="p">,</span><span class="w"> </span><span class="n">value2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">key2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">value2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jedis</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="w"> </span><span class="n">key2</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">user2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">decode</span><span class="p">(</span><span class="w"> </span><span class="n">value2</span><span class="p">,</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+</div></section></section><section ><section >
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Step-4:-Operate-on-a-List">Step 4: Operate on a List<a class="anchor-link" href="#Step-4:-Operate-on-a-List">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">static</span><span class="w"> </span><span class="n">MOST_RECENT_USERS_LIST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;MostRecentUsers&quot;</span><span class="p">;</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="n">user1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="s">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1234&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;john@nova.pt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;John Smith&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Jedis</span><span class="w"> </span><span class="n">jedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RedisCache</span><span class="p">.</span><span class="na">getCachePool</span><span class="p">().</span><span class="na">getResource</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jedis</span><span class="p">.</span><span class="na">lpush</span><span class="p">(</span><span class="n">MOST_RECENT_USERS_LIST</span><span class="p">,</span><span class="w"> </span><span class="n">JSON</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">user1</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="w">        </span><span class="n">jedis</span><span class="p">.</span><span class="na">ltrim</span><span class="p">(</span><span class="n">MOST_RECENT_USERS_LIST</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jedis</span><span class="p">.</span><span class="na">lrange</span><span class="p">(</span><span class="n">MOST_RECENT_USERS_LIST</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">MOST_RECENT_USERS_LIST</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">)</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+</div><aside class="notes">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Note: Redis Lists support several operations, such as appending, trimming and retrieving range...</p>
 
 </div>
 </div>
 </div>
 </div>
+</aside></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Additional-Nodes">Additional Nodes<a class="anchor-link" href="#Additional-Nodes">&#182;</a></h1><p>Is it possible to access a Cosmos DB from a program running in my machine?</p>
-<p><strong>Yes</strong>. The example provided does that.</p>
-<p>NOTE: This is particularly useful for getting the code correct.</p>
-<p>Is it possible to use Cosmos DB with other data models, for instance SQL?</p>
-<p><strong>Yes</strong>. Check the documentation.</p>
+<h1 id="Step-4:-Increment-a-Counter">Step 4: Increment a Counter<a class="anchor-link" href="#Step-4:-Increment-a-Counter">&#182;</a></h1><div class="highlight"><pre><span></span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">MUM_USERS_COUNTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;NumUsers&quot;</span><span class="p">;</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Jedis</span><span class="w"> </span><span class="n">jedis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RedisCache</span><span class="p">.</span><span class="na">getCachePool</span><span class="p">().</span><span class="na">getResource</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="n">cnt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jedis</span><span class="p">.</span><span class="na">incr</span><span class="p">(</span><span class="n">MUM_USERS_COUNTER</span><span class="p">);</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="w"> </span><span class="s">&quot;Num users : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cnt</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+</div><aside class="notes">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Note: Redis counters are updated atomically and support concurrent increments by multiple clients...</p>
 
 </div>
 </div>
 </div>
 </div>
+</aside></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Sample-Code">Sample Code<a class="anchor-link" href="#Sample-Code">&#182;</a></h1><p>The code provided <a href="scc2425-lab3.zip">scc2425-lab3.zip</a> is a Maven project for uploading and downloading file to and from the Blob store (directly).</p>
+<h1 id="Step-4:-Redis-key-expiration">Step 4: Redis key expiration<a class="anchor-link" href="#Step-4:-Redis-key-expiration">&#182;</a></h1><ul>
+<li><strong>expire( key, seconds)</strong></li>
+</ul>
+<p>Allows to set an expiration time for a key.</p>
+<p>After the time for the key expires, the key is automatically deleted from the cache.</p>
+
+</div>
+</div>
+</div>
+</div><aside class="notes">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>Resetting the timeout is not automatic for all operations.</p>
+<p>For example, incrementing a key does not clear the timeout and postpone expiration.</p>
+<p>Check the documentation.</p>
+
+</div>
+</div>
+</div>
+</div>
+</aside></section></section><section ><section >
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Sample-Code">Sample Code<a class="anchor-link" href="#Sample-Code">&#182;</a></h1><p>The code provided <a href="scc2425-lab4.zip">scc2425-lab4.zip</a> is a Maven project for uploading and downloading file to and from the Blob store (directly).</p>
 <p>For testing it in the command line, just run:</p>
 <p><code>mvn clean compile assembly:single</code></p>
 <p>This will compile and create a single file with all compiled classes and dependencies.</p>
 <p>Run the program as follows:</p>
-<p><code>java -cp target/scc2425-lab3-1.0-jar-with-dependencies.jar scc.utils.TestUsers</code></p>
+<p><code>java -cp target/scc2425-lab4-1.0-jar-with-dependencies.jar scc.utils.TestCache</code></p>
 
 </div>
 </div>
 </div>
-</div>
+</div></section></section><section ><section >
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h1 id="Goals">Goals<a class="anchor-link" href="#Goals">&#182;</a></h1><ul>
-<li>Create a Cosmos DB account / database and container @ Azure;</li>
-<li>Create the resources for the project by storing data at Azure Cosmos DB;</li>
-<li><strong>Start converting Tukano to leverage CosmosDB NoSQL</strong></li>
+<li>Create a Azure Redis for Cache account @ Azure;</li>
+<li>Try AzureRedisCache to store various kinds of data in cache.</li>
+<li><strong>Continue converting Tukano to run on Azure; think of leveraging Redis to improve latency.</strong></li>
 </ul>
 
 </div>
 </div>
+</div>
+</div></section></section>
 </div>
 </div>
 </body>
@@ -15135,5 +15081,56 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 
+
+<script>
+require(
+    {
+      // it makes sense to wait a little bit when you are loading
+      // reveal from a cdn in a slow connection environment
+      waitSeconds: 15
+    },
+    [
+      "https://unpkg.com/reveal.js@4.0.2/dist/reveal.js",
+      "https://unpkg.com/reveal.js@4.0.2/plugin/notes/notes.js"
+    ],
+
+    function(Reveal, RevealNotes){
+        // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            history: true,
+            transition: "slide",
+            slideNumber: "",
+            plugins: [RevealNotes]
+        });
+
+        var update = function(event){
+          if(MathJax.Hub.getAllJax(Reveal.getCurrentSlide())){
+            MathJax.Hub.Rerender(Reveal.getCurrentSlide());
+          }
+        };
+
+        Reveal.addEventListener('slidechanged', update);
+
+        function setScrollingSlide() {
+            var scroll = false
+            if (scroll === true) {
+              var h = $('.reveal').height() * 0.95;
+              $('section.present').find('section')
+                .filter(function() {
+                  return $(this).height() > h;
+                })
+                .css('height', 'calc(95vh)')
+                .css('overflow-y', 'scroll')
+                .css('margin-top', '20px');
+            }
+        }
+
+        // check and set the scrolling slide every time the slide change
+        Reveal.addEventListener('slidechanged', setScrollingSlide);
+    }
+);
+</script>
 
 </html>
