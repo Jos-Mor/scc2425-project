@@ -1,4 +1,4 @@
-package tukano.api;
+package main.java.tukano.api;
 
 import java.util.List;
 

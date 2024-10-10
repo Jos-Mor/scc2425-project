@@ -1,8 +1,8 @@
-package tukano.impl.rest;
+package main.java.tukano.impl.rest;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response.Status;
-import tukano.api.Result;
+import main.java.tukano.api.Result;
 
 public class RestResource {
 

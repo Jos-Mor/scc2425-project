@@ -1,19 +1,20 @@
-package tukano.impl;
+package main.java.tukano.impl;
 
 import static java.lang.String.format;
-import static tukano.api.Result.error;
-import static tukano.api.Result.ErrorCode.FORBIDDEN;
+import static main.java.tukano.api.Result.error;
+import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
 
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import tukano.api.Blobs;
-import tukano.api.Result;
-import tukano.impl.rest.TukanoRestServer;
-import tukano.impl.storage.BlobStorage;
-import tukano.impl.storage.FilesystemStorage;
-import utils.Hash;
-import utils.Hex;
+import main.java.tukano.api.Blobs;
+import main.java.tukano.api.Result;
+import main.java.tukano.impl.rest.TukanoRestServer;
+import main.java.tukano.impl.storage.BlobStorage;
+import main.java.tukano.impl.storage.FilesystemStorage;
+import main.java.utils.Hash;
+import main.java.utils.Hex;
+
 
 public class JavaBlobs implements Blobs {
 	

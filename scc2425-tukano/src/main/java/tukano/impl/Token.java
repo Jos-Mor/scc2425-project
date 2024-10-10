@@ -1,8 +1,9 @@
-package tukano.impl;
+package main.java.tukano.impl;
+
+import main.java.utils.Hash;
 
 import java.util.logging.Logger;
 
-import utils.Hash;
 
 public class Token {
 	private static Logger Log = Logger.getLogger(Token.class.getName());

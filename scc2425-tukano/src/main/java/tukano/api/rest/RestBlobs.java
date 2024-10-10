@@ -1,4 +1,4 @@
-package tukano.api.rest;
+package main.java.tukano.api.rest;
 
 
 import jakarta.ws.rs.Consumes;

@@ -1,28 +1,27 @@
-package tukano.impl;
+package main.java.tukano.impl;
 
 import static java.lang.String.format;
-import static tukano.api.Result.error;
-import static tukano.api.Result.errorOrResult;
-import static tukano.api.Result.errorOrValue;
-import static tukano.api.Result.errorOrVoid;
-import static tukano.api.Result.ok;
-import static tukano.api.Result.ErrorCode.BAD_REQUEST;
-import static tukano.api.Result.ErrorCode.FORBIDDEN;
-import static utils.DB.getOne;
+
+import static main.java.tukano.api.Result.*;
+import static main.java.tukano.api.Result.ErrorCode.BAD_REQUEST;
+import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
+import static main.java.utils.DB.getOne;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import tukano.api.Blobs;
-import tukano.api.Result;
-import tukano.api.Short;
-import tukano.api.Shorts;
-import tukano.api.User;
-import tukano.impl.data.Following;
-import tukano.impl.data.Likes;
-import tukano.impl.rest.TukanoRestServer;
-import utils.DB;
+import main.java.tukano.api.Blobs;
+import main.java.tukano.api.Result;
+import main.java.tukano.api.Shorts;
+import main.java.tukano.api.Short;
+
+
+import main.java.tukano.api.User;
+import main.java.tukano.impl.data.Following;
+import main.java.tukano.impl.data.Likes;
+import main.java.tukano.impl.rest.TukanoRestServer;
+import main.java.utils.DB;
 
 public class JavaShorts implements Shorts {
 
@@ -40,16 +39,16 @@ public class JavaShorts implements Shorts {
 	
 	
 	@Override
-	public Result<Short> createShort(String userId, String password) {
+	public Result<main.java.tukano.api.Short> createShort(String userId, String password) {
 		Log.info(() -> format("createShort : userId = %s, pwd = %s\n", userId, password));
 
 		return errorOrResult( okUser(userId, password), user -> {
 			
 			var shortId = format("%s+%s", userId, UUID.randomUUID());
-			var blobUrl = format("%s/%s/%s", TukanoRestServer.serverURI, Blobs.NAME, shortId); 
+			var blobUrl = format("%s/%s/%s", TukanoRestServer.serverURI, Blobs.NAME, shortId);
 			var shrt = new Short(shortId, userId, blobUrl);
 
-			return errorOrValue(DB.insertOne(shrt), s -> s.copyWithLikes_And_Token(0));
+			return errorOrValue(DB.insertOne(shrt), (Short s) -> s.copyWithLikes_And_Token(0));
 		});
 	}
 
@@ -62,7 +61,7 @@ public class JavaShorts implements Shorts {
 
 		var query = format("SELECT count(*) FROM Likes l WHERE l.shortId = '%s'", shortId);
 		var likes = DB.sql(query, Long.class);
-		return errorOrValue( getOne(shortId, Short.class), shrt -> shrt.copyWithLikes_And_Token( likes.get(0)));
+		return errorOrValue( getOne(shortId, Short.class), (Short shrt) -> shrt.copyWithLikes_And_Token( likes.get(0)));
 	}
 
 	
@@ -70,10 +69,10 @@ public class JavaShorts implements Shorts {
 	public Result<Void> deleteShort(String shortId, String password) {
 		Log.info(() -> format("deleteShort : shortId = %s, pwd = %s\n", shortId, password));
 		
-		return errorOrResult( getShort(shortId), shrt -> {
+		return errorOrResult( getShort(shortId), (Short shrt) -> {
 			
 			return errorOrResult( okUser( shrt.getOwnerId(), password), user -> {
-				return DB.transaction( hibernate -> {
+				return DB.transaction(hibernate -> {
 
 					hibernate.remove( shrt);
 					
@@ -81,6 +80,7 @@ public class JavaShorts implements Shorts {
 					hibernate.createNativeQuery( query, Likes.class).executeUpdate();
 					
 					JavaBlobs.getInstance().delete(shrt.getBlobUrl(), Token.get() );
+
 				});
 			});	
 		});
@@ -151,7 +151,7 @@ public class JavaShorts implements Shorts {
 		return errorOrValue( okUser( userId, password), DB.sql( format(QUERY_FMT, userId, userId), String.class));		
 	}
 		
-	protected Result<User> okUser( String userId, String pwd) {
+	protected Result<User> okUser(String userId, String pwd) {
 		return JavaUsers.getInstance().getUser(userId, pwd);
 	}
 	

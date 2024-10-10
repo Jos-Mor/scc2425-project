@@ -1,4 +1,4 @@
-package tukano.impl.data;
+package main.java.tukano.impl.data;
 
 import java.util.Objects;
 

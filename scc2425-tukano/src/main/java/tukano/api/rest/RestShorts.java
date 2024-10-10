@@ -1,4 +1,4 @@
-package tukano.api.rest;
+package main.java.tukano.api.rest;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import tukano.api.Short;
+import main.java.tukano.api.Short;
 
 @Path(RestShorts.PATH)
 public interface RestShorts {

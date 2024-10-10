@@ -1,21 +1,21 @@
-package tukano.impl;
+package main.java.tukano.impl;
 
 import static java.lang.String.format;
-import static tukano.api.Result.error;
-import static tukano.api.Result.errorOrResult;
-import static tukano.api.Result.errorOrValue;
-import static tukano.api.Result.ok;
-import static tukano.api.Result.ErrorCode.BAD_REQUEST;
-import static tukano.api.Result.ErrorCode.FORBIDDEN;
+import static main.java.tukano.api.Result.error;
+import static main.java.tukano.api.Result.errorOrResult;
+import static main.java.tukano.api.Result.errorOrValue;
+import static main.java.tukano.api.Result.ok;
+import static main.java.tukano.api.Result.ErrorCode.BAD_REQUEST;
+import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
 
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-import tukano.api.Result;
-import tukano.api.User;
-import tukano.api.Users;
-import utils.DB;
+import main.java.tukano.api.Result;
+import main.java.tukano.api.User;
+import main.java.tukano.api.Users;
+import main.java.utils.DB;
 
 public class JavaUsers implements Users {
 	

@@ -1,14 +1,13 @@
-package tukano.clients.rest;
+package main.test.tukano.clients.rest;
 
 
-import static tukano.api.Result.error;
-import static tukano.api.Result.ok;
-import static tukano.api.Result.ErrorCode.INTERNAL_ERROR;
-import static tukano.api.Result.ErrorCode.TIMEOUT;
+
 
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import main.java.tukano.api.Result;
+import main.java.utils.Sleep;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 
@@ -19,9 +18,13 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import tukano.api.Result;
-import tukano.api.Result.ErrorCode;
-import utils.Sleep;
+
+import static main.java.tukano.api.Result.ErrorCode.INTERNAL_ERROR;
+import static main.java.tukano.api.Result.ErrorCode.TIMEOUT;
+import static main.java.tukano.api.Result.error;
+import static main.java.tukano.api.Result.ok;
+import static main.java.tukano.api.Result.ErrorCode;
+
 
 public class RestClient {
 	private static Logger Log = Logger.getLogger(RestClient.class.getName());
@@ -59,10 +62,10 @@ public class RestClient {
 				Sleep.ms(RETRY_SLEEP);
 			} catch (Exception x) {
 				x.printStackTrace();
-				return Result.error(INTERNAL_ERROR);
+				return error(INTERNAL_ERROR);
 			}
 		System.err.println("TIMEOUT...");
-		return Result.error(TIMEOUT);
+		return error(TIMEOUT);
 	}
 
 	protected Result<Void> toJavaResult(Response r) {

@@ -1,24 +1,24 @@
-package utils;
+package main.java.utils;
 
 import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+
+import main.java.tukano.api.Result;
+import main.java.tukano.api.Result.ErrorCode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 
-import tukano.api.Result;
-import tukano.api.Result.ErrorCode;
-
 /**
  * A helper class to perform POJO (Plain Old Java Objects) persistence, using
  * Hibernate and a backing relational database.
  * 
- * @param <Session>
+ * <Session>
  */
 public class Hibernate {
 //	private static Logger Log = Logger.getLogger(Hibernate.class.getName());

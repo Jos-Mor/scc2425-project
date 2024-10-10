@@ -1,12 +1,12 @@
-package tukano.impl.rest;
+package main.java.tukano.impl.rest;
 
 import java.util.List;
 
 import jakarta.inject.Singleton;
-import tukano.api.Short;
-import tukano.api.Shorts;
-import tukano.api.rest.RestShorts;
-import tukano.impl.JavaShorts;
+import main.java.tukano.api.Shorts;
+import main.java.tukano.api.rest.RestShorts;
+import main.java.tukano.api.Short;
+import main.java.tukano.impl.JavaShorts;
 
 @Singleton
 public class RestShortsResource extends RestResource implements RestShorts {
