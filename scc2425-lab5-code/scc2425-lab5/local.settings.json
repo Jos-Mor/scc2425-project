@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "java"
+  },
+  "extensions": {
+          "http": {
+              "routePrefix": "lab5"
+          }
+      }
+}
