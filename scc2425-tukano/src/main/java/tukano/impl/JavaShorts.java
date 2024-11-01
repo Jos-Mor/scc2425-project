@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import static main.java.tukano.api.Result.*;
 import static main.java.tukano.api.Result.ErrorCode.BAD_REQUEST;
 import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
-import static main.java.utils.DB.getOne;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +20,19 @@ import main.java.tukano.api.User;
 import main.java.tukano.impl.data.Following;
 import main.java.tukano.impl.data.Likes;
 import main.java.tukano.impl.rest.TukanoRestServer;
-import main.java.utils.DB;
+import main.java.utils.database.DB;
+import main.java.utils.database.DataBase;
 
 public class JavaShorts implements Shorts {
 
 	private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 	
 	private static Shorts instance;
-	
+
+	private static final DataBase DB = new DB();
+	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.SHORTS);
+
+
 	synchronized public static Shorts getInstance() {
 		if( instance == null )
 			instance = new JavaShorts();
@@ -61,7 +65,7 @@ public class JavaShorts implements Shorts {
 
 		var query = format("SELECT count(*) FROM Likes l WHERE l.shortId = '%s'", shortId);
 		var likes = DB.sql(query, Long.class);
-		return errorOrValue( getOne(shortId, Short.class), (Short shrt) -> shrt.copyWithLikes_And_Token( likes.get(0)));
+		return errorOrValue( DB.getOne(shortId, Short.class), (Short shrt) -> shrt.copyWithLikes_And_Token( likes.get(0)));
 	}
 
 	

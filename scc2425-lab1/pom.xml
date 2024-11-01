@@ -112,8 +112,8 @@
                       </resource>
                   </resources>
               </deployment>
-              <resourceGroup>scc-backend-rg-59457</resourceGroup>
-              <appName>scc-backend-59457</appName>
+              <resourceGroup>scc-backend-rg-72394</resourceGroup>
+              <appName>scc-backend-72394</appName>
           </configuration>
       </plugin> 
     </plugins> 

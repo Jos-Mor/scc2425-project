@@ -1,4 +1,4 @@
-package scc.srv;
+package main.java.scc.srv;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,10 +18,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response.Status;
-import scc.utils.Hash;
 
 import io.github.cdimascio.dotenv.DotenvException;
 import io.github.cdimascio.dotenv.Dotenv;
+import main.java.scc.utils.Hash;
 
 /**
  * Resource for managing media files, such as images.

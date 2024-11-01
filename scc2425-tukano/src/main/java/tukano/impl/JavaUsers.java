@@ -15,14 +15,17 @@ import java.util.logging.Logger;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.User;
 import main.java.tukano.api.Users;
-import main.java.utils.DB;
+import main.java.utils.database.DB;
+import main.java.utils.database.DataBase;
 
 public class JavaUsers implements Users {
 	
 	private static Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
 	private static Users instance;
-	
+
+	private static final DataBase DB = new DB();
+	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.USERS);
 	synchronized public static Users getInstance() {
 		if( instance == null )
 			instance = new JavaUsers();
