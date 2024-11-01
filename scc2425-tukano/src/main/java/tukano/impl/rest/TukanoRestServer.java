@@ -8,11 +8,17 @@ import main.java.utils.Args;
 import main.java.utils.IP;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import jakarta.ws.rs.core.Application;
+
+import tukano.impl.Token;
+import utils.Args;
+import utils.API;
+
+//TODO: fix this code, added a few bits that needed to be added, but professor changed the code too fast to copy it all :/
+//Also, remember to put TukanoRestServer on the pom.xml file
 
 
-
-
-public class TukanoRestServer {
+public class TukanoRestServer extends Application {
 	final private static Logger Log = Logger.getLogger(TukanoRestServer.class.getName());
 
 	static final String INETADDR_ANY = "0.0.0.0";
@@ -21,15 +27,32 @@ public class TukanoRestServer {
 	public static final int PORT = 8080;
 
 	public static String serverURI;
-			
+	private Set<Class<?>> resources = new HashSet<>();
+	private Set<Object> singletons = new HashSet<>();
+
 	static {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s");
 	}
 	
 	protected TukanoRestServer() {
 		serverURI = String.format(SERVER_BASE_URI, IP.hostname(), PORT);
+
+		//professor's code
+		resources.add(RestBlobsResource.class);
+		resources.add(RestUsersResource.class);
+		resources.add(RestShortsResource.class);
+
 	}
 
+	@Override
+	public Set<Class<?>> getClasses() {
+		return resources;
+	}
+
+	@Override
+	public Set<Class<Object>> getSingletons() {
+		return singletons;
+	}
 
 	protected void start() throws Exception {
 	
@@ -43,6 +66,8 @@ public class TukanoRestServer {
 		
 		Log.info(String.format("Tukano Server ready @ %s\n",  serverURI));
 	}
+
+
 	
 	
 	public static void main(String[] args) throws Exception {

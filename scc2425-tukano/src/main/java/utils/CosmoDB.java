@@ -10,9 +10,7 @@ import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.CosmosException;
-import com.azure.cosmos.models.CosmosItemRequestOptions;
-import com.azure.cosmos.models.CosmosQueryRequestOptions;
-import com.azure.cosmos.models.PartitionKey;
+import com.azure.cosmos.models.*;
 import main.java.tukano.api.Result;
 import org.hibernate.Session;
 
@@ -55,6 +53,8 @@ public class CosmoDB {
             return;
         db = client.getDatabase(DB_NAME);
         user_container = db.getContainer(USERS_CONTAINER);
+
+
     }
 
     public void close() {
@@ -91,10 +91,17 @@ public class CosmoDB {
         return tryCatch( () -> user_container.createItem(obj).getItem());
     }
 
-    //TODO: Transactions???
 
-    public <T> Result<T> transaction( Consumer<Session> c) {
-        return Hibernate.getInstance().execute( c::accept );
+    public <T> Result<T> transaction( PartitionKey key, Consumer<CosmosBatch> c) {
+        CosmosBatch batch = CosmosBatch.createCosmosBatch(key);
+        c.accept(batch);
+        CosmosBatchResponse response =  user_container.executeCosmosBatch(batch);
+        if(response.isSuccessStatusCode()) {
+            return Result.ok();
+        }
+        else {
+            return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+        }
     }
 
     public <T> Result<T> transaction( Function<Session, Result<T>> func) {
