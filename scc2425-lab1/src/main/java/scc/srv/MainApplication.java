@@ -1,4 +1,4 @@
-package scc.srv;
+package main.java.scc.srv;
 
 import java.util.HashSet;
 import java.util.Set;
