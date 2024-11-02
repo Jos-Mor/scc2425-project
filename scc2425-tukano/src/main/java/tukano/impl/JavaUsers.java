@@ -50,8 +50,30 @@ public class JavaUsers implements Users {
 
 		if (userId == null)
 			return error(BAD_REQUEST);
-		
-		return validatedUserOrError( DB.getOne( userId, User.class), pwd);
+
+		try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+			var user = jedis.get(userId+pwd);
+			if (user != null) {
+				var decodedUser = JSON.decode(user, User.class);
+				return validatedUserOrError(decodedUser, pwd);
+			}
+		}
+		catch (Exception e){
+			System.err.println(e);
+		}
+
+		var result = validatedUserOrError( DB.getOne( userId, User.class), pwd);
+
+		if (result.isOk()){
+			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+				jedis.set(userId+pwd, JSON.encode(result.value()));
+			}
+			catch (Exception e){
+				System.err.println(e);
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -61,7 +83,17 @@ public class JavaUsers implements Users {
 		if (badUpdateUserInfo(userId, pwd, other))
 			return error(BAD_REQUEST);
 
-		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> DB.updateOne( user.updateFrom(other)));
+		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> {
+			var result = DB.updateOne( user.updateFrom(other));
+
+			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+				jedis.set(userId+pwd, JSON.encode(other));
+			}
+			catch (Exception e){
+				System.err.println(e);
+			}
+			return result;
+		});
 	}
 
 	@Override
@@ -79,7 +111,18 @@ public class JavaUsers implements Users {
 				JavaBlobs.getInstance().deleteAllBlobs(userId, Token.get(userId));
 			}).start();
 			
-			return DB.deleteOne( user);
+			var result = DB.deleteOne( user);
+
+			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+				var user = jedis.get(userId+pwd);
+				if (user != null){
+					jedis.del(userId+pwd);
+				}
+			}
+			catch (Exception e){
+				System.err.println(e);
+			}
+			return result;
 		});
 	}
 
