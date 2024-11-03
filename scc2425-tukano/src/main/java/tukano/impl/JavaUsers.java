@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.User;
 import main.java.tukano.api.Users;
+import main.java.tukano.impl.rest.cache.RedisCache;
+import main.java.utils.JSON;
 import main.java.utils.database.DB;
 import main.java.utils.database.DataBase;
 
@@ -51,11 +53,11 @@ public class JavaUsers implements Users {
 		if (userId == null)
 			return error(BAD_REQUEST);
 
-		try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+		try (var jedis = RedisCache.getCachePool().getResource()) {
 			var user = jedis.get(userId+pwd);
 			if (user != null) {
 				var decodedUser = JSON.decode(user, User.class);
-				return validatedUserOrError(decodedUser, pwd);
+				return validatedUserOrError(ok(decodedUser), pwd);
 			}
 		}
 		catch (Exception e){
@@ -64,8 +66,8 @@ public class JavaUsers implements Users {
 
 		var result = validatedUserOrError( DB.getOne( userId, User.class), pwd);
 
-		if (result.isOk()){
-			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+		if (result.isOK()){
+			try (var jedis = RedisCache.getCachePool().getResource()) {
 				jedis.set(userId+pwd, JSON.encode(result.value()));
 			}
 			catch (Exception e){
@@ -86,7 +88,7 @@ public class JavaUsers implements Users {
 		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> {
 			var result = DB.updateOne( user.updateFrom(other));
 
-			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
+			try (var jedis = RedisCache.getCachePool().getResource()) {
 				jedis.set(userId+pwd, JSON.encode(other));
 			}
 			catch (Exception e){
@@ -113,9 +115,9 @@ public class JavaUsers implements Users {
 			
 			var result = DB.deleteOne( user);
 
-			try (JedisPool jedis = RedisCache.getCachePool().getResource()) {
-				var user = jedis.get(userId+pwd);
-				if (user != null){
+			try (var jedis = RedisCache.getCachePool().getResource()) {
+				var user2 = jedis.get(userId+pwd);
+				if (user2 != null){
 					jedis.del(userId+pwd);
 				}
 			}

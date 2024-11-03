@@ -1,4 +1,4 @@
-package scc.cache;
+package main.java.tukano.impl.rest.cache;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
