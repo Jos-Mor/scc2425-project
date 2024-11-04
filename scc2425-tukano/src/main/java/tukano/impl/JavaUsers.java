@@ -1,12 +1,11 @@
 package main.java.tukano.impl;
 
 import static java.lang.String.format;
+import static main.java.tukano.api.Result.ErrorCode.*;
 import static main.java.tukano.api.Result.error;
 import static main.java.tukano.api.Result.errorOrResult;
 import static main.java.tukano.api.Result.errorOrValue;
 import static main.java.tukano.api.Result.ok;
-import static main.java.tukano.api.Result.ErrorCode.BAD_REQUEST;
-import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -15,10 +14,11 @@ import java.util.logging.Logger;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.User;
 import main.java.tukano.api.Users;
-import main.java.tukano.impl.rest.cache.RedisCache;
+import main.java.tukano.impl.storage.cache.*;
+import main.java.tukano.impl.storage.database.imp.DataBase;
+import main.java.tukano.impl.storage.database.imp.HibernateDB;
 import main.java.utils.JSON;
-import main.java.utils.database.DB;
-import main.java.utils.database.DataBase;
+import org.hibernate.Session;
 
 public class JavaUsers implements Users {
 	
@@ -26,7 +26,7 @@ public class JavaUsers implements Users {
 
 	private static Users instance;
 
-	private static final DataBase DB = new DB();
+	private static final DataBase<Session> DB = new HibernateDB();
 	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.USERS);
 	synchronized public static Users getInstance() {
 		if( instance == null )
@@ -53,26 +53,22 @@ public class JavaUsers implements Users {
 		if (userId == null)
 			return error(BAD_REQUEST);
 
-		try (var jedis = RedisCache.getCachePool().getResource()) {
-			var user = jedis.get(userId+pwd);
-			if (user != null) {
-				var decodedUser = JSON.decode(user, User.class);
-				return validatedUserOrError(ok(decodedUser), pwd);
+		var redisRes = RedisCache.doRedis(j -> {
+			var user = RedisCache.getRedis(j, userId+pwd, u -> JSON.decode(u, User.class));
+			if (user.isOK()) {
+				return validatedUserOrError(ok(user.value()), pwd);
 			}
-		}
-		catch (Exception e){
-			System.err.println(e);
-		}
+			return error(NOT_FOUND);
+		});
+		if (redisRes.isOK()) return redisRes;
 
-		var result = validatedUserOrError( DB.getOne( userId, User.class), pwd);
+		Result<User> result = validatedUserOrError( DB.getOne( userId, User.class), pwd);
 
-		if (result.isOK()){
-			try (var jedis = RedisCache.getCachePool().getResource()) {
-				jedis.set(userId+pwd, JSON.encode(result.value()));
-			}
-			catch (Exception e){
-				System.err.println(e);
-			}
+		if (result.isOK()) {
+			RedisCache.doRedis(j -> {
+				RedisCache.setRedis(j, userId+pwd, result.value(), u -> JSON.encode(u) );
+				return ok();
+			});
 		}
 
 		return result;
@@ -88,12 +84,13 @@ public class JavaUsers implements Users {
 		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> {
 			var result = DB.updateOne( user.updateFrom(other));
 
-			try (var jedis = RedisCache.getCachePool().getResource()) {
-				jedis.set(userId+pwd, JSON.encode(other));
+			if (result.isOK()) {
+				RedisCache.doRedis(j -> {
+					RedisCache.setRedis(j, userId+pwd, result.value(), u -> JSON.encode(u) );
+					return ok();
+				});
 			}
-			catch (Exception e){
-				System.err.println(e);
-			}
+
 			return result;
 		});
 	}
@@ -105,7 +102,9 @@ public class JavaUsers implements Users {
 		if (userId == null || pwd == null )
 			return error(BAD_REQUEST);
 
-		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> {
+		Result<User> res = validatedUserOrError( DB.getOne( userId, User.class), pwd);
+
+		return errorOrResult( res, user -> {
 
 			// Delete user shorts and related info asynchronously in a separate thread
 			Executors.defaultThreadFactory().newThread( () -> {
@@ -115,15 +114,16 @@ public class JavaUsers implements Users {
 			
 			var result = DB.deleteOne( user);
 
-			try (var jedis = RedisCache.getCachePool().getResource()) {
-				var user2 = jedis.get(userId+pwd);
-				if (user2 != null){
-					jedis.del(userId+pwd);
-				}
+			if (result.isOK()) {
+				RedisCache.doRedis(j -> {
+					var user2 = j.get(userId+pwd);
+					if (user2 != null){
+						j.del(userId+pwd);
+					}
+					return ok();
+				});
 			}
-			catch (Exception e){
-				System.err.println(e);
-			}
+
 			return result;
 		});
 	}

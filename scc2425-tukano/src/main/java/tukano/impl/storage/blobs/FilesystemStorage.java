@@ -1,4 +1,4 @@
-package main.java.tukano.impl.storage;
+package main.java.tukano.impl.storage.blobs;
 
 
 

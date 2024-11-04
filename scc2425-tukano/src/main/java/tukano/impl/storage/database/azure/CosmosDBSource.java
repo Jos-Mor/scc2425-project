@@ -1,6 +1,8 @@
-package main.java.utils.database.azure;
+package main.java.tukano.impl.storage.database.azure;
 
 import com.azure.cosmos.*;
+import com.azure.cosmos.models.PartitionKey;
+import main.java.tukano.impl.storage.database.imp.CosmoDB;
 
 public class CosmosDBSource {
 
@@ -28,15 +30,17 @@ public class CosmosDBSource {
     }
 
     private static final String DB_NAME = "scc2425";
-    private static final String USERS_CONTAINER = "users";
+    protected static final String USERS_CONTAINER = "users";
 
-    private static final String SHORTS_CONTAINER = "shorts";
+    protected static final String SHORTS_CONTAINER = "shorts";
 
     protected static CosmosClient client;
     private static CosmosDatabase db;
-    public static CosmosContainer user_container;
+    protected static CosmosContainer user_container;
 
-    public static CosmosContainer short_container;
+    protected static CosmosContainer short_container;
+
+    protected PartitionKey partitionKey;
 
 
     protected static synchronized void init() {

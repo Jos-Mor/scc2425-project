@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 import main.java.tukano.api.Blobs;
 import main.java.tukano.api.Result;
 import main.java.tukano.impl.rest.TukanoRestServer;
-import main.java.tukano.impl.storage.BlobStorage;
-import main.java.tukano.impl.storage.FilesystemStorage;
+import main.java.tukano.impl.storage.blobs.BlobStorage;
+import main.java.tukano.impl.storage.blobs.FilesystemStorage;
 import main.java.utils.Hash;
 import main.java.utils.Hex;
 

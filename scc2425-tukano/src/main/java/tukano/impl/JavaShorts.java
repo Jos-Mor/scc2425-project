@@ -3,8 +3,7 @@ package main.java.tukano.impl;
 import static java.lang.String.format;
 
 import static main.java.tukano.api.Result.*;
-import static main.java.tukano.api.Result.ErrorCode.BAD_REQUEST;
-import static main.java.tukano.api.Result.ErrorCode.FORBIDDEN;
+import static main.java.tukano.api.Result.ErrorCode.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +19,12 @@ import main.java.tukano.api.User;
 import main.java.tukano.impl.data.Following;
 import main.java.tukano.impl.data.Likes;
 import main.java.tukano.impl.rest.TukanoRestServer;
+import main.java.tukano.impl.storage.database.imp.DataBase;
+import main.java.tukano.impl.storage.database.imp.HibernateDB;
 import main.java.utils.JSON;
-import main.java.utils.database.DB;
-import main.java.utils.database.DataBase;
-import redis.clients.jedis.JedisPool;
 
-import main.java.tukano.impl.rest.cache.RedisCache;
+import main.java.tukano.impl.storage.cache.*;
+import org.hibernate.Session;
 
 public class JavaShorts implements Shorts {
 
@@ -33,7 +32,7 @@ public class JavaShorts implements Shorts {
 	
 	private static Shorts instance;
 
-	private static final DataBase DB = new DB();
+	private static final DataBase<Session> DB = new HibernateDB();
 	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.SHORTS);
 
 	synchronized public static Shorts getInstance() {
@@ -67,6 +66,19 @@ public class JavaShorts implements Shorts {
 		if( shortId == null )
 			return error(BAD_REQUEST);
 
+
+		var redisRes = RedisCache.doRedis( j -> {
+			var res1 = RedisCache.getRedis(j, shortId, (res) -> JSON.decode(res, Short.class));
+			var res2 = RedisCache.getRedis(j, shortId+"-like", (likes) -> Long.parseLong(likes));
+			if (res1.isOK() && res2.isOK()) {
+				return ok(res1.value().copyWithLikes_And_Token(res2.value()));
+			}
+			return error(NOT_FOUND);
+		});
+
+		if (redisRes.isOK()) return redisRes;
+
+		/*
 		try (var jedis = RedisCache.getCachePool().getResource()) {
 			var result = jedis.get(shortId);
 			var likes = jedis.get(shortId+"-like");
@@ -78,19 +90,19 @@ public class JavaShorts implements Shorts {
 		catch (Exception e){
 			System.err.println(e);
 		}
+		*/
 
 		var query = format("SELECT count(*) FROM Likes l WHERE l.shortId = '%s'", shortId);
 		var likes = DB.sql(query, Long.class);
 		return errorOrValue( DB.getOne(shortId, Short.class),
 				(Short shrt) -> {
 					Short shrt2 = shrt.copyWithLikes_And_Token(likes.get(0));
-					try (var jedis = RedisCache.getCachePool().getResource()) {
-						jedis.set(shortId, JSON.encode(shrt));
-						jedis.set(shortId+"-like", likes.get(0).toString());
-					}
-					catch (Exception e){
-						System.err.println(e);
-					}
+
+					RedisCache.doRedis(j -> {
+						RedisCache.setRedis(j, shortId, shrt, (s) -> JSON.encode(shrt));
+						RedisCache.setRedis(j, shortId+"-like", likes, (l) -> l.get(0).toString());
+						return ok();
+					});
 					return shrt2;
 				}
 		);
@@ -103,35 +115,30 @@ public class JavaShorts implements Shorts {
 	public Result<Void> deleteShort(String shortId, String password) {
 		Log.info(() -> format("deleteShort : shortId = %s, pwd = %s\n", shortId, password));
 
-		return errorOrResult( getShort(shortId), (Short shrt) -> {
-			
-			return errorOrResult( okUser( shrt.getOwnerId(), password), user -> {
+		return errorOrResult( getShort(shortId), (Short shrt) ->
+				errorOrResult( okUser( shrt.getOwnerId(), password), user ->
+					DB.transaction(trans -> {
 
-				return DB.transaction(hibernate -> {
+						DB.deleteOne(shrt.getShortId(), shrt, trans);
+						//hibernate.remove( shrt);
 
-					hibernate.remove( shrt);
-					
-					var query = format("DELETE Likes l WHERE l.shortId = '%s'", shortId);
-					hibernate.createNativeQuery( query, Likes.class).executeUpdate();
-					
-					JavaBlobs.getInstance().delete(shrt.getBlobUrl(), Token.get() );
+						var query = format("DELETE Likes l WHERE l.shortId = '%s'", shortId);
+						//hibernate.createNativeQuery( query, Likes.class).executeUpdate();
+						DB.sql(query, Likes.class, trans);
 
-					try (var jedis = RedisCache.getCachePool().getResource()) {
-						var result = jedis.get(shortId);
-						if (result != null) {
-							jedis.del(shortId);
-							jedis.del(shortId+"-like");
-						}
-					}
-					catch (Exception e){
-						System.err.println(e);
-					}
-				});
+						JavaBlobs.getInstance().delete(shrt.getBlobUrl(), Token.get() );
 
-			});
-
-
-		});
+						RedisCache.doRedis(j -> {
+							var result = j.get(shortId);
+							if (result != null) {
+								j.del(shortId);
+								j.del(shortId+"-like");
+							}
+							return ok();
+						});
+					})
+				)
+		);
 	}
 
 	@Override
@@ -171,17 +178,16 @@ public class JavaShorts implements Shorts {
 			var result = errorOrVoid( okUser( userId, password), isLiked ? DB.insertOne( l ) : DB.deleteOne( l ));
 
 			if (result.isOK()) {
-				try (var jedis = RedisCache.getCachePool().getResource()) {
-					var result2 = jedis.get(shrt + "-like");
-					if (result2 != null) {
+				RedisCache.doRedis(j -> {
+					var res = j.get(shrt + "-like");
+					if (res != null) {
 						if (isLiked)
-							jedis.incr(shrt + "-like");
+							j.incr(shrt + "-like");
 						else
-							jedis.decr(shrt + "-like");
+							j.decr(shrt + "-like");
 					}
-				} catch (Exception e) {
-					System.err.println(e);
-				}
+					return ok();
+				});
 			}
 			return result;
 		});
@@ -232,36 +238,37 @@ public class JavaShorts implements Shorts {
 
 		if( ! Token.isValid( token, userId ) )
 			return error(FORBIDDEN);
-		
-		return DB.transaction( (hibernate) -> {
+
+		return DB.transaction( (trans) -> {
 
 			//get shorts
 			List<String> list = this.getShorts(userId).value();
 
 			//delete shorts
-			var query1 = format("DELETE Short s WHERE s.ownerId = '%s'", userId);		
-			hibernate.createQuery(query1, Short.class).executeUpdate();
-			
-			//delete follows
-			var query2 = format("DELETE Following f WHERE f.follower = '%s' OR f.followee = '%s'", userId, userId);		
-			hibernate.createQuery(query2, Following.class).executeUpdate();
-			
-			//delete likes
-			var query3 = format("DELETE Likes l WHERE l.ownerId = '%s' OR l.userId = '%s'", userId, userId);		
-			hibernate.createQuery(query3, Likes.class).executeUpdate();
+			var query1 = format("DELETE Short s WHERE s.ownerId = '%s'", userId);
+			DB.sql(query1, Short.class, trans);
+			//hibernate.createQuery(query1, Short.class).executeUpdate();
 
-			try (var jedis = RedisCache.getCachePool().getResource()) {
-				for (String shrt : list){
-					var result = jedis.get(shrt);
+			//delete follows
+			var query2 = format("DELETE Following f WHERE f.follower = '%s' OR f.followee = '%s'", userId, userId);
+			DB.sql(query2, Following.class, trans);
+			//hibernate.createQuery(query2, Following.class).executeUpdate();
+
+			//delete likes
+			var query3 = format("DELETE Likes l WHERE l.ownerId = '%s' OR l.userId = '%s'", userId, userId);
+			DB.sql(query3, Likes.class, trans);
+			//hibernate.createQuery(query3, Likes.class).executeUpdate();
+
+			RedisCache.doRedis(j -> {
+				list.forEach(shrt -> {
+					var result = j.get(shrt);
 					if (result != null) {
-						jedis.del(shrt);
-						jedis.del(shrt+"-like");
+						j.del(shrt);
+						j.del(shrt+"-like");
 					}
-				}
-			}
-			catch (Exception e){
-				System.err.println(e);
-			}
+				});
+				return ok();
+			});
 		});
 	}
 	

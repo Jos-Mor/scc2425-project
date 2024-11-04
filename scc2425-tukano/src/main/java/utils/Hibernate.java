@@ -54,6 +54,11 @@ public class Hibernate {
 		});
 	}
 
+	public Result<Void> persistOne(Object  obj, Session session) {
+		session.persist( obj );
+		return Result.ok();
+	}
+
 	public <T> Result<T> updateOne(T obj) {
 		return execute( hibernate -> {
 			var res = hibernate.merge( obj );
@@ -63,12 +68,26 @@ public class Hibernate {
 			return Result.ok( res );
 		});
 	}
+
+	public <T> Result<T> updateOne(T obj, Session session) {
+		var res = session.merge( obj );
+		if( res == null)
+			return Result.error( ErrorCode.NOT_FOUND );
+
+		return Result.ok( res );
+
+	}
 	
 	public <T> Result<T> deleteOne(T obj) {
 		return execute( hibernate -> {
 			hibernate.remove( obj );
 			return Result.ok( obj );
 		});
+	}
+
+	public <T> Result<T> deleteOne(T obj, Session session) {
+		session.remove( obj );
+		return Result.ok( obj );
 	}
 		
 	public <T> Result<T> getOne(Object id, Class<T> clazz) {
@@ -82,9 +101,30 @@ public class Hibernate {
 			throw e;
 		}
 	}
+
+	public <T> Result<T> getOne(Object id, Class<T> clazz, Session session) {
+		try (session) {
+			var res = session.find(clazz, id);
+			if (res == null)
+				return Result.error(ErrorCode.NOT_FOUND);
+			else
+				return Result.ok(res);
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	
 	public <T> List<T> sql(String sqlStatement, Class<T> clazz) {
 		try (var session = sessionFactory.openSession()) {
+			var query = session.createNativeQuery(sqlStatement, clazz);
+			return query.list();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public <T> List<T> sql(String sqlStatement, Class<T> clazz, Session session) {
+		try (session) {
 			var query = session.createNativeQuery(sqlStatement, clazz);
 			return query.list();
 		} catch (Exception e) {

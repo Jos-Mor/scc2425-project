@@ -1,10 +1,9 @@
-package main.java.tukano.impl.storage;
+package main.java.tukano.impl.storage.blobs;
 
 import java.util.function.Consumer;
 
 import java.util.HashMap;
 import java.util.Map;
-import main.java.utils.Hash;
 
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobContainerClient;
