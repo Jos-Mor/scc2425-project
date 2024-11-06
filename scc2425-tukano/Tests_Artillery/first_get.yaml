@@ -1,0 +1,12 @@
+config:
+  target: http://127.0.0.1:8080/tukano/rest
+  phases:
+    - name: simple_get
+      duration: 1 # how long the test will run for, in seconds
+      arrivalRate: 1 # number of arrivals per second.
+
+scenarios:
+  - name: TuKanoHome
+    flow:
+      - get:
+          url: /users/kgallagher?pwd=easypass
