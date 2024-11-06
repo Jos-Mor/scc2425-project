@@ -49,6 +49,8 @@ public class AzureManagement {
 	static final boolean CREATE_STORAGE = true;
 	static final boolean CREATE_COSMOSDB = true;
 	static final boolean CREATE_FUNCTIONS = true;
+	private static String REDIS_AVAILABLE = "YES";
+
 
 	// TODO: change your suffix and other names if you want
 	static final String MY_ID = "59547"; // Add your suffix here
@@ -329,7 +331,7 @@ public class AzureManagement {
 			System.out.println("Redis cache created with success: name = " + name + "@" + region);
 		}
 	}
-	public synchronized static void dumpRedisCacheInfo(Map<String, String> props, String propFilename, 
+	public synchronized static void dumpRedisCacheInfo(Map<String, String> props, String propFilename,
 				String settingsFilename, String appName, String functionName, String rgName, RedisCache cache)
 			throws IOException {
 		RedisAccessKeys redisAccessKey = cache.regenerateKey(RedisKeyType.PRIMARY);
@@ -359,6 +361,9 @@ public class AzureManagement {
 			cmd.append(" --settings \"REDIS_URL=");
 			cmd.append(cache.hostname());
 			cmd.append("\"\n");
+			cmd.append(" --settings \"REDIS_AVAILABLE=");
+			cmd.append(REDIS_AVAILABLE);
+			cmd.append("\"\n");
 		}
 		if (functionName != null) {
 			cmd.append("az functionapp config appsettings set --name ");
@@ -374,6 +379,9 @@ public class AzureManagement {
 			cmd.append(rgName);
 			cmd.append(" --settings \"REDIS_URL=");
 			cmd.append(cache.hostname());
+			cmd.append("\"\n");
+			cmd.append(" --settings \"REDIS_AVAILABLE=");
+			cmd.append(REDIS_AVAILABLE);
 			cmd.append("\"\n");
 		}
 		synchronized (AzureManagement.class) {

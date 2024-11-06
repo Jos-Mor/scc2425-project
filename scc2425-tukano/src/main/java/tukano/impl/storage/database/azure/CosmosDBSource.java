@@ -7,8 +7,8 @@ import main.java.tukano.impl.storage.database.imp.CosmoDB;
 public class CosmosDBSource {
 
 
-    private static final String CONNECTION_URL = "https://scc2425259457.documents.azure.com:443/"; // replace with your own
-    private static final String DB_KEY = System.getenv("DB_KEY");
+    private static final String CONNECTION_URL = System.getenv("COSMOSDB_URL");
+    private static final String DB_KEY = System.getenv("COSMOSDB_KEY");
     private static CosmoDB instance;
 
     public static synchronized CosmoDB getInstance() {

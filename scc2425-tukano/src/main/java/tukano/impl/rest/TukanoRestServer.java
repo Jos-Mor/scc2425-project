@@ -1,6 +1,9 @@
 package main.java.tukano.impl.rest;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import main.java.tukano.impl.Token;
@@ -10,9 +13,8 @@ import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import jakarta.ws.rs.core.Application;
 
-import tukano.impl.Token;
-import utils.Args;
-import utils.API;
+import main.java.tukano.impl.Token;
+import main.java.utils.Args;
 
 //TODO: fix this code, added a few bits that needed to be added, but professor changed the code too fast to copy it all :/
 //Also, remember to put TukanoRestServer on the pom.xml file
@@ -28,7 +30,7 @@ public class TukanoRestServer extends Application {
 
 	public static String serverURI;
 	private Set<Class<?>> resources = new HashSet<>();
-	private Set<Object> singletons = new HashSet<>();
+	private final Set<Class<Object>> singletons = new HashSet<>();
 
 	static {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s");
@@ -50,8 +52,8 @@ public class TukanoRestServer extends Application {
 	}
 
 	@Override
-	public Set<Class<Object>> getSingletons() {
-		return singletons;
+	public Set<Object> getSingletons() {
+		return Collections.singleton(singletons);
 	}
 
 	protected void start() throws Exception {

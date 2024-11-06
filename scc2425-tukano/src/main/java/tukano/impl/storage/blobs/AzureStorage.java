@@ -21,7 +21,7 @@ public class AzureStorage implements BlobStorage {
 
 
     // Get connection string in the storage access keys page
-    String storageConnectionString = System.getenv("AZURE_KEY");
+    String storageConnectionString = System.getenv("BlobStoreConnection");
 
     // Get container client
     BlobContainerClient containerClient = new BlobContainerClientBuilder()

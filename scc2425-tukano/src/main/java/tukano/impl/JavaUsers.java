@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+import com.azure.cosmos.models.CosmosBatch;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.User;
 import main.java.tukano.api.Users;
 import main.java.tukano.impl.storage.cache.*;
+import main.java.tukano.impl.storage.database.imp.CosmoDB;
 import main.java.tukano.impl.storage.database.imp.DataBase;
 import main.java.tukano.impl.storage.database.imp.HibernateDB;
 import main.java.utils.JSON;
@@ -26,8 +28,8 @@ public class JavaUsers implements Users {
 
 	private static Users instance;
 
-	private static final DataBase<Session> DB = new HibernateDB();
-	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.USERS);
+	//private static final DataBase<Session> DB = new HibernateDB();
+	private static final DataBase<CosmosBatch> DB = new CosmoDB(CosmoDB.Container.USERS);
 	synchronized public static Users getInstance() {
 		if( instance == null )
 			instance = new JavaUsers();

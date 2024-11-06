@@ -17,7 +17,7 @@ import static main.java.tukano.api.Result.error;
 import static main.java.tukano.api.Result.ok;
 
 public class RedisCache {
-    private static final String RedisHostname = "scc2425lab4.redis.cache.windows.net";
+    private static final String RedisHostname = System.getenv("REDIS_URL");
     private static final String RedisKey = System.getenv("REDIS_KEY");
     private static final int REDIS_PORT = 6380;
     private static final int REDIS_TIMEOUT = 1000;
@@ -108,13 +108,16 @@ public class RedisCache {
     }
 
     public synchronized static <T> Result<T> doRedis(Function<Jedis, Result<T>> f) {
-        try (var jedis = RedisCache.getCachePool().getResource()) {
-            return f.apply(jedis);
+        if (System.getenv("REDIS_AVAILABLE").equalsIgnoreCase("TRUE")) {
+            try (var jedis = RedisCache.getCachePool().getResource()) {
+                return f.apply(jedis);
+            }
+            catch (Exception e){
+                System.err.println(e);
+                return error(Result.ErrorCode.INTERNAL_ERROR);
+            }
         }
-        catch (Exception e){
-            System.err.println(e);
-            return error(Result.ErrorCode.INTERNAL_ERROR);
-        }
+        return error(Result.ErrorCode.UNAVAILABLE);
     }
 
 }

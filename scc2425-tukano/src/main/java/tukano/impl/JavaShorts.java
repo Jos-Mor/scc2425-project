@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.azure.cosmos.models.CosmosBatch;
 import main.java.tukano.api.Blobs;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.Shorts;
@@ -19,6 +20,7 @@ import main.java.tukano.api.User;
 import main.java.tukano.impl.data.Following;
 import main.java.tukano.impl.data.Likes;
 import main.java.tukano.impl.rest.TukanoRestServer;
+import main.java.tukano.impl.storage.database.imp.CosmoDB;
 import main.java.tukano.impl.storage.database.imp.DataBase;
 import main.java.tukano.impl.storage.database.imp.HibernateDB;
 import main.java.utils.JSON;
@@ -32,8 +34,9 @@ public class JavaShorts implements Shorts {
 	
 	private static Shorts instance;
 
-	private static final DataBase<Session> DB = new HibernateDB();
-	//private static final DataBase DB = new CosmoDB(CosmoDB.Container.SHORTS);
+
+	//private static final DataBase<Session> DB = new HibernateDB();
+	private static final DataBase<CosmosBatch> DB = new CosmoDB(CosmoDB.Container.SHORTS);
 
 	synchronized public static Shorts getInstance() {
 		if( instance == null )
@@ -45,7 +48,7 @@ public class JavaShorts implements Shorts {
 	
 	
 	@Override
-	public Result<main.java.tukano.api.Short> createShort(String userId, String password) {
+	public Result<Short> createShort(String userId, String password) {
 		Log.info(() -> format("createShort : userId = %s, pwd = %s\n", userId, password));
 
 		return errorOrResult( okUser(userId, password), user -> {
