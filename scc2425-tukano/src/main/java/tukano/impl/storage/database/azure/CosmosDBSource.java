@@ -6,6 +6,9 @@ import main.java.tukano.impl.storage.database.imp.CosmoDB;
 
 public class CosmosDBSource {
 
+    public CosmosDBSource() throws Exception {
+
+    }
 
     private static final String CONNECTION_URL = System.getenv("COSMOSDB_URL");
     private static final String DB_KEY = System.getenv("COSMOSDB_KEY");
@@ -29,7 +32,7 @@ public class CosmosDBSource {
         return instance;
     }
 
-    private static final String DB_NAME = "scc2425";
+    private static final String DB_NAME = System.getenv("COSMOSDB_DATABASE");
     protected static final String USERS_CONTAINER = "users";
 
     protected static final String SHORTS_CONTAINER = "shorts";
@@ -46,6 +49,7 @@ public class CosmosDBSource {
     protected static synchronized void init() {
         if( db != null)
             return;
+        getInstance();
         db = client.getDatabase(DB_NAME);
         user_container = db.getContainer(USERS_CONTAINER);
         short_container = db.getContainer(SHORTS_CONTAINER);

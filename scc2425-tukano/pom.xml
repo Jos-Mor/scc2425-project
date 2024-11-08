@@ -58,7 +58,7 @@
 				<configuration>
 					<schemaVersion>V2</schemaVersion>
 					<pricingTier>F1</pricingTier>
-					<region>westeurope</region>
+					<region>northeurope</region>
 					<runtime>
 						<os>linux</os>
 						<javaVersion>Java 17</javaVersion>
@@ -74,8 +74,8 @@
 							</resource>
 						</resources>
 					</deployment>
-					<resourceGroup>rg59457-72394-westeurope</resourceGroup> <!-- change the region as needed -->
-					<appName>app59457-72394westeurope</appName> <!-- change the region as needed -->
+					<resourceGroup>rg59457-72394-northeurope</resourceGroup> <!-- change the region as needed -->
+					<appName>app59457-72394northeurope</appName> <!-- change the region as needed -->
 				</configuration>
 			</plugin>
 			<plugin>

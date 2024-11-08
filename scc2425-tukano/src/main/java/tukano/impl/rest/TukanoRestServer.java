@@ -51,7 +51,7 @@ public class TukanoRestServer extends Application {
 		singletons.add(new RestShortsResource());
          */
 
-		Props.load("azurekeys-westeurope.props"); //place the props file in resources folder under java/main
+		Props.load("azurekeys-northeurope.props"); //place the props file in resources folder under java/main
 
 	}
 
