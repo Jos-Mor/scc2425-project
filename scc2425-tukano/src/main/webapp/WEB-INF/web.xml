@@ -9,14 +9,13 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-    <display-name>Tukano-BackEnd</display-name>
  <servlet>
     <servlet-name>Resteasy</servlet-name>
     <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
      <init-param>
         <param-name>jakarta.ws.rs.Application</param-name>
-        <param-value> main.java.tukano.impl.rest.TukanoRestServer </param-value>
-    </init-param>
+        <param-value>main.java.tukano.impl.rest.TukanoRestServer</param-value>
+     </init-param>
 </servlet>
 <servlet-mapping>
     <servlet-name>Resteasy</servlet-name>

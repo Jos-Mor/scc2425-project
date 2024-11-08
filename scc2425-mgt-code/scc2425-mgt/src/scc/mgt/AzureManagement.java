@@ -53,13 +53,13 @@ public class AzureManagement {
 
 
 	// TODO: change your suffix and other names if you want
-	static final String MY_ID = "59547"; // Add your suffix here
+	static final String MY_ID = "59457-72394"; // Add your suffix here
 	
 	static final String AZURE_COSMOSDB_NAME = "cosmos" + MY_ID;	// Cosmos DB account name
 	static final String AZURE_COSMOSDB_DATABASE = "cosmosdb" + MY_ID;	// Cosmos DB database name
 	static final String[] BLOB_CONTAINERS = { "shorts" };	// TODO: Containers to add to the blob storage
 
-	static final Region[] REGIONS = new Region[] { Region.EUROPE_NORTH}; // Define the regions to deploy resources here
+	static final Region[] REGIONS = new Region[] { Region.EUROPE_WEST}; // Define the regions to deploy resources here
 	
 	// Name of resource group for each region
 	static final String[] AZURE_RG_REGIONS = Arrays.stream(REGIONS)
@@ -72,7 +72,7 @@ public class AzureManagement {
 			.toArray(String[]::new);
 
 	// Name of Blob storage account
-	static final String[] AZURE_STORAGE_NAME = Arrays.stream(REGIONS).map(reg -> "sto" + MY_ID + reg.name())
+	static final String[] AZURE_STORAGE_NAME = Arrays.stream(REGIONS).map(reg -> "sto" + MY_ID.replace('-', 'a') + reg.name())
 			.toArray(String[]::new);
 	
 	// Name of Redis server to be defined

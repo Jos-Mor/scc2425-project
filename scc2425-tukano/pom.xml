@@ -74,8 +74,8 @@
 							</resource>
 						</resources>
 					</deployment>
-					<resourceGroup>scc-backend-rg-59457-72394</resourceGroup>
-					<appName>scc-backend-tukano-59457-72394</appName>
+					<resourceGroup>rg59457-72394-westeurope</resourceGroup> <!-- change the region as needed -->
+					<appName>app59457-72394westeurope</appName> <!-- change the region as needed -->
 				</configuration>
 			</plugin>
 			<plugin>

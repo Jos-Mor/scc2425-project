@@ -22,7 +22,7 @@ import main.java.utils.Args;
 
 
 public class TukanoRestServer extends Application {
-	final public static Logger Log = Logger.getLogger(TukanoRestServer.class.getName());
+	public static final Logger Log = Logger.getLogger(TukanoRestServer.class.getName());
 
 	static final String INETADDR_ANY = "0.0.0.0";
 	static String SERVER_BASE_URI = "http://%s:%s/rest";
@@ -44,9 +44,14 @@ public class TukanoRestServer extends Application {
 		resources.add(RestBlobsResource.class);
 		resources.add(RestUsersResource.class);
 		resources.add(RestShortsResource.class);
-		resources.add(ControlResource.class);
+        resources.add(ControlResource.class);
+        /*
+		singletons.add(new RestUsersResource());
+		singletons.add(new RestBlobsResource());
+		singletons.add(new RestShortsResource());
+         */
 
-		Props.load("azurekeys-region.props"); //place the props file in resources folder under java/main
+		Props.load("azurekeys-westeurope.props"); //place the props file in resources folder under java/main
 
 	}
 
@@ -79,7 +84,7 @@ public class TukanoRestServer extends Application {
 
 
 
-	public static void test_main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		Args.use(args);
 
 		Token.setSecret( Args.valueOf("-secret", ""));
