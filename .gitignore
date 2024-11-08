@@ -1,4 +1,3 @@
-
 .DS_Store
 docs/labs/lab1/.ipynb_checkpoints/scc2425-lab1-checkpoint.ipynb
 docs/labs/lab3/.ipynb_checkpoints/scc2425-lab3-checkpoint.ipynb
@@ -8,3 +7,8 @@ docs/labs/lab2/.ipynb_checkpoints/scc2425-lab2-checkpoint.ipynb
 docs/labs/lab2/.ipynb_checkpoints/scc2425-lab2-checkpoint.ipynb
 docs/labs/lab3/.ipynb_checkpoints/scc2425-lab3-checkpoint.ipynb
 docs/labs/lab4/.ipynb_checkpoints/scc2425-lab4-checkpoint.ipynb
+
+/target/
+/.idea/
+/.settings/
+*.class

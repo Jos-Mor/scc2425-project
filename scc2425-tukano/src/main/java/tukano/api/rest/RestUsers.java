@@ -27,8 +27,7 @@ public interface RestUsers {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	String createUser(User user);
-	
-	
+
 	@GET
 	@Path("/{" + USER_ID+ "}")
 	@Produces(MediaType.APPLICATION_JSON)

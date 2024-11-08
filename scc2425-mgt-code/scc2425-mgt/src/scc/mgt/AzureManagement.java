@@ -47,9 +47,9 @@ public class AzureManagement {
 	// TODO: These variable allow you to control what is being created
 	static final boolean CREATE_REDIS = false;
 	static final boolean CREATE_STORAGE = true;
-	static final boolean CREATE_COSMOSDB = true;
-	static final boolean CREATE_FUNCTIONS = true;
-	private static String REDIS_AVAILABLE = "YES";
+	static final boolean CREATE_COSMOSDB = false;
+	static final boolean CREATE_FUNCTIONS = false;
+	private static String REDIS_AVAILABLE = "NO";
 
 
 	// TODO: change your suffix and other names if you want
@@ -491,7 +491,8 @@ public class AzureManagement {
 							createCosmosDatabase(cosmosClient, AZURE_COSMOSDB_DATABASE);
 
 							//TODO: create the collections you have in your application
-							createCosmosCollection(cosmosClient, AZURE_COSMOSDB_DATABASE, "users", "/id", null);
+							createCosmosCollection(cosmosClient, AZURE_COSMOSDB_DATABASE, "users", "/userId", null);
+							createCosmosCollection(cosmosClient, AZURE_COSMOSDB_DATABASE, "shorts", "/shortId", null);
 
 							System.err.println("Azure Cosmos DB resources created with success");
 
