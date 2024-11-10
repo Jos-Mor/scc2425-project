@@ -12,8 +12,6 @@ public interface DataBase <Z> {
 
     public <T> List<T> sql(String query, Class<T> clazz, Transaction<Z> trans);
 
-    public <T> List<T> sql(Class<T> clazz, String fmt, Object ... args);
-
     public <T> Result<T> getOne(String id, Class<T> clazz);
 
     public <T> Result<T> getOne(String id, Class<T> clazz, Transaction<Z> trans);
@@ -32,5 +30,4 @@ public interface DataBase <Z> {
 
     public <T> Result<T> transaction( Consumer<Transaction<Z>> c);
 
-    public <T> Result<T> transaction( Function<Z, Result<T>> func);
 }

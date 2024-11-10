@@ -2,23 +2,21 @@ package main.java.tukano.impl.storage.database.azure;
 
 import com.azure.cosmos.*;
 import com.azure.cosmos.models.PartitionKey;
-import main.java.tukano.impl.storage.database.imp.CosmoDB;
+
+import static main.java.tukano.impl.rest.TukanoRestServer.Log;
 
 public class CosmosDBSource {
 
-    public CosmosDBSource() throws Exception {
-
-    }
 
     private static final String CONNECTION_URL = System.getenv("COSMOSDB_URL");
     private static final String DB_KEY = System.getenv("COSMOSDB_KEY");
-    private static CosmoDB instance;
+    private static final String DB_NAME = System.getenv("COSMOSDB_DATABASE");
 
-    public static synchronized CosmoDB getInstance() {
-        if( instance != null)
-            return instance;
+    protected static synchronized void init() {
+        if (short_container != null) return;
+        Log.info("conn url: " +CONNECTION_URL + " / db key: " + DB_KEY  + " / db name: " + DB_NAME);
 
-        CosmosClient client = new CosmosClientBuilder()
+        client = new CosmosClientBuilder()
                 .endpoint(CONNECTION_URL)
                 .key(DB_KEY)
                 //.directMode()
@@ -28,11 +26,17 @@ public class CosmosDBSource {
                 .connectionSharingAcrossClientsEnabled(true)
                 .contentResponseOnWriteEnabled(true)
                 .buildClient();
-        instance = new CosmoDB( client);
-        return instance;
+        Log.info("client: " + client);
+
+        db = client.getDatabase(DB_NAME);
+        Log.info("db: " + db);
+        user_container = db.getContainer(USERS_CONTAINER);
+        Log.info("user_container: " + user_container);
+        short_container = db.getContainer(SHORTS_CONTAINER);
+        Log.info("short_container: " + short_container);
+
     }
 
-    private static final String DB_NAME = System.getenv("COSMOSDB_DATABASE");
     protected static final String USERS_CONTAINER = "users";
 
     protected static final String SHORTS_CONTAINER = "shorts";
@@ -43,17 +47,5 @@ public class CosmosDBSource {
 
     protected static CosmosContainer short_container;
 
-    protected PartitionKey partitionKey;
-
-
-    protected static synchronized void init() {
-        if( db != null)
-            return;
-        getInstance();
-        db = client.getDatabase(DB_NAME);
-        user_container = db.getContainer(USERS_CONTAINER);
-        short_container = db.getContainer(SHORTS_CONTAINER);
-
-    }
 
 }

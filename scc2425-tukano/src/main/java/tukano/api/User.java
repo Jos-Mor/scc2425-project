@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 public class User {
 	
 	@Id
+	private String id;
 	private String userId;
 	private String pwd;
 	private String email;	
@@ -18,14 +19,21 @@ public class User {
 		this.pwd = pwd;
 		this.email = email;
 		this.userId = userId;
+		this.id = userId;
 		this.displayName = displayName;
 	}
 
+	public String getId() {
+		return id;
+	}
+	public void setId(String userId) {
+		this.userId = userId; this.id = userId;
+	}
 	public String getUserId() {
 		return userId;
 	}
 	public void setUserId(String userId) {
-		this.userId = userId;
+		this.userId = userId; this.id = userId;
 	}
 	public String getPwd() {
 		return pwd;
@@ -45,7 +53,10 @@ public class User {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
-	
+
+	public String id() {
+		return id;
+	}
 	public String userId() {
 		return userId;
 	}

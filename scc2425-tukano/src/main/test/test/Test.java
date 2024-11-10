@@ -99,7 +99,7 @@ public class Test {
 	}
 	
 	
-	private static Result<?> show( Result<?> res ) {
+	static Result<?> show(Result<?> res) {
 		if( res.isOK() )
 			System.err.println("OK: " + res.value() );
 		else

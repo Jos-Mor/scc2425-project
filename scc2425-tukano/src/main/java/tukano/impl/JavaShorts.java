@@ -20,13 +20,11 @@ import main.java.tukano.api.User;
 import main.java.tukano.impl.data.Following;
 import main.java.tukano.impl.data.Likes;
 import main.java.tukano.impl.rest.TukanoRestServer;
-import main.java.tukano.impl.storage.database.imp.CosmoDB;
+import main.java.tukano.impl.storage.database.azure.CosmoDB;
 import main.java.tukano.impl.storage.database.imp.DataBase;
-import main.java.tukano.impl.storage.database.imp.HibernateDB;
 import main.java.utils.JSON;
 
 import main.java.tukano.impl.storage.cache.*;
-import org.hibernate.Session;
 
 public class JavaShorts implements Shorts {
 
