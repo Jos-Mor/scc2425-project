@@ -1,21 +1,14 @@
 package main.java.tukano.impl.rest;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import main.java.tukano.impl.Token;
 import main.java.tukano.impl.rest.utils.Props;
-import main.java.utils.Args;
 import main.java.utils.IP;
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import jakarta.ws.rs.core.Application;
 
-import main.java.tukano.impl.Token;
-import main.java.utils.Args;
+import main.java.tukano.impl.auth.AuthenticationCookie;
 
 //TODO: fix this code, added a few bits that needed to be added, but professor changed the code too fast to copy it all :/
 //Also, remember to put TukanoRestServer on the pom.xml file
@@ -33,6 +26,7 @@ public class TukanoRestServer extends Application {
 	private Set<Class<?>> resources = new HashSet<>();
 	private Set<Object> singletons = new HashSet<>();
 
+
 	static {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s");
 	}
@@ -45,11 +39,8 @@ public class TukanoRestServer extends Application {
 		resources.add(RestUsersResource.class);
 		resources.add(RestShortsResource.class);
         resources.add(ControlResource.class);
-        /*
-		singletons.add(new RestUsersResource());
-		singletons.add(new RestBlobsResource());
-		singletons.add(new RestShortsResource());
-         */
+
+		singletons.add(AuthenticationCookie.class);
 
 		Props.load("azurekeys-northeurope.props"); //place the props file in resources folder under java/main
 

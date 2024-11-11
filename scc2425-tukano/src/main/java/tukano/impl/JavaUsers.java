@@ -12,9 +12,11 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import com.azure.cosmos.models.CosmosBatch;
+import jakarta.ws.rs.core.Response;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.User;
 import main.java.tukano.api.Users;
+import main.java.tukano.impl.auth.AuthenticationCookie;
 import main.java.tukano.impl.storage.cache.*;
 import main.java.tukano.impl.storage.database.azure.CosmoDB;
 import main.java.tukano.impl.storage.database.imp.DataBase;
@@ -56,7 +58,11 @@ public class JavaUsers implements Users {
 		var redisRes = RedisCache.doRedis(j -> {
 			var user = RedisCache.getRedis(j, userId+pwd, u -> JSON.decode(u, User.class));
 			if (user.isOK()) {
-				return validatedUserOrError(ok(user.value()), pwd);
+				var result = validatedUserOrError(ok(user.value()), pwd);
+				if (result.isOK()){
+					AuthenticationCookie.createAuthCookie();
+				}
+				return result;
 			}
 			return error(NOT_FOUND);
 		});
@@ -69,6 +75,7 @@ public class JavaUsers implements Users {
 				RedisCache.setRedis(j, userId+pwd, result.value(), u -> JSON.encode(u) );
 				return ok();
 			});
+			AuthenticationCookie.createAuthCookie();
 		}
 
 		return result;

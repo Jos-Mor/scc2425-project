@@ -24,7 +24,11 @@ public class RestUsersResource extends RestResource implements RestUsers {
 
 	@Override
 	public User getUser(String name, String pwd) {
-		return super.resultOrThrow( impl.getUser(name, pwd));
+		var result = super.resultOrThrow( impl.getUser(name, pwd));
+		if (result != null) {
+
+		}
+		return result;
 	}
 	
 	@Override
