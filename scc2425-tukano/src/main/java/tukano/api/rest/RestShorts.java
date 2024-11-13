@@ -11,7 +11,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import main.java.tukano.api.Short;
+import main.java.tukano.api.TukanoShort;
 
 @Path(RestShorts.PATH)
 public interface RestShorts {
@@ -32,7 +32,7 @@ public interface RestShorts {
 	@POST
 	@Path("/{" + USER_ID + "}")
 	@Produces(MediaType.APPLICATION_JSON)
-	Short createShort(@PathParam(USER_ID) String userId, @QueryParam(PWD) String password);
+    TukanoShort createShort(@PathParam(USER_ID) String userId, @QueryParam(PWD) String password);
 
 	@DELETE
 	@Path("/{" + SHORT_ID + "}")
@@ -41,7 +41,7 @@ public interface RestShorts {
 	@GET
 	@Path("/{" + SHORT_ID + "}" )
 	@Produces(MediaType.APPLICATION_JSON)
-	Short getShort(@PathParam(SHORT_ID) String shortId);
+    TukanoShort getShort(@PathParam(SHORT_ID) String shortId);
 
 	@GET
 	@Path("/{" + USER_ID + "}" + SHORTS )

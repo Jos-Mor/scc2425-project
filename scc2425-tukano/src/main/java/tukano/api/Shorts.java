@@ -28,7 +28,7 @@ public interface Shorts {
 	 * FORBIDDEN, if the password is not correct;
 	 * BAD_REQUEST, otherwise.
 	 */
-	Result<Short> createShort(String userId, String password);
+	Result<TukanoShort> createShort(String userId, String password);
 
 	/**
 	 * Deletes a given Short.
@@ -48,7 +48,7 @@ public interface Shorts {
 	 * @return (OK,Short), 
 	 * 	NOT_FOUND if shortId does not match an existing short
 	 */
-	Result<Short> getShort(String shortId);
+	Result<TukanoShort> getShort(String shortId);
 	
 	
 	/**

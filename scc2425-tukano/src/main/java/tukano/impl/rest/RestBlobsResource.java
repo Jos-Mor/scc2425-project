@@ -12,9 +12,6 @@ import jakarta.servlet.http.Cookie;
 @Singleton
 public class RestBlobsResource extends RestResource implements RestBlobs {
 
-	@Context
-	HttpServletResponse response;
-
 	final Blobs impl;
 	
 	public RestBlobsResource() {
@@ -22,22 +19,22 @@ public class RestBlobsResource extends RestResource implements RestBlobs {
 	}
 	
 	@Override
-	public void upload(String blobId, byte[] bytes, String token, Cookie cookie) {
+	public void upload(String blobId, byte[] bytes, String token) {
 		super.resultOrThrow( impl.upload(blobId, bytes, token));
 	}
 
 	@Override
-	public byte[] download(String blobId, String token, Cookie cookie) {
+	public byte[] download(String blobId, String token) {
 		return super.resultOrThrow( impl.download( blobId, token ));
 	}
 
 	@Override
-	public void delete(String blobId, String token, Cookie cookie) {
+	public void delete(String blobId, String token) {
 		super.resultOrThrow( impl.delete( blobId, token ));
 	}
 	
 	@Override
-	public void deleteAllBlobs(String userId, String password, Cookie cookie) {
+	public void deleteAllBlobs(String userId, String password) {
 		super.resultOrThrow( impl.deleteAllBlobs( userId, password ));
 	}
 }

@@ -13,7 +13,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
 import jakarta.ws.rs.core.MediaType;
-import main.java.tukano.api.User;
+import main.java.tukano.api.TukanoUser;
 
 @Path(RestUsers.PATH)
 public interface RestUsers {
@@ -27,28 +27,28 @@ public interface RestUsers {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	String createUser(User user);
+	String createUser(TukanoUser user);
 
 	@GET
 	@Path("/{" + USER_ID+ "}")
 	@Produces(MediaType.APPLICATION_JSON)
-	User getUser(@PathParam(USER_ID) String userId, @QueryParam( PWD ) String pwd);
+    TukanoUser getUser(@PathParam(USER_ID) String userId, @QueryParam( PWD ) String pwd);
 	
 	
 	@PUT
 	@Path("/{" + USER_ID+ "}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	User updateUser(@PathParam( USER_ID ) String userId, @QueryParam( PWD ) String pwd, User user);
+    TukanoUser updateUser(@PathParam( USER_ID ) String userId, @QueryParam( PWD ) String pwd, TukanoUser user);
 	
 	
 	@DELETE
 	@Path("/{" + USER_ID+ "}")
 	@Produces(MediaType.APPLICATION_JSON)
-	User deleteUser(@PathParam(USER_ID) String userId, @QueryParam(PWD) String pwd);
+    TukanoUser deleteUser(@PathParam(USER_ID) String userId, @QueryParam(PWD) String pwd);
 	
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	List<User> searchUsers(@QueryParam(QUERY) String pattern);	
+	List<TukanoUser> searchUsers(@QueryParam(QUERY) String pattern);
 }

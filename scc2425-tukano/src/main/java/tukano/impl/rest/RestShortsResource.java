@@ -5,16 +5,16 @@ import java.util.List;
 import jakarta.inject.Singleton;
 import main.java.tukano.api.Shorts;
 import main.java.tukano.api.rest.RestShorts;
-import main.java.tukano.api.Short;
+import main.java.tukano.api.TukanoShort;
 import main.java.tukano.impl.JavaShorts;
 
 @Singleton
 public class RestShortsResource extends RestResource implements RestShorts {
 
 	static final Shorts impl = JavaShorts.getInstance();
-		
+
 	@Override
-	public Short createShort(String userId, String password) {
+	public TukanoShort createShort(String userId, String password) {
 		return super.resultOrThrow( impl.createShort(userId, password));
 	}
 
@@ -24,7 +24,7 @@ public class RestShortsResource extends RestResource implements RestShorts {
 	}
 
 	@Override
-	public Short getShort(String shortId) {
+	public TukanoShort getShort(String shortId) {
 		return super.resultOrThrow( impl.getShort(shortId));
 	}
 	@Override

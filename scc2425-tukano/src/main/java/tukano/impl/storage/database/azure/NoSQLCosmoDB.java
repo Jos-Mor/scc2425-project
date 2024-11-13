@@ -1,36 +1,31 @@
 package main.java.tukano.impl.storage.database.azure;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
+import main.java.tukano.impl.storage.database.azure.*;
 
-import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.*;
 import main.java.tukano.api.Result;
-import main.java.tukano.impl.storage.database.azure.CosmosDBSource;
+import main.java.tukano.impl.storage.database.Container;
 import main.java.tukano.impl.storage.database.imp.DataBase;
-import main.java.tukano.impl.storage.database.transaction.CosmoDBTrans;
+import main.java.tukano.impl.storage.database.transaction.NoSQLCosmoDBTrans;
 import main.java.tukano.impl.storage.database.transaction.Transaction;
+import main.java.tukano.impl.storage.database.transaction.TransactionProperties;
 
 import static main.java.tukano.impl.rest.TukanoRestServer.Log;
 
-public class CosmoDB implements DataBase<CosmosBatch> {
+public class NoSQLCosmoDB implements DataBase<CosmosBatch> {
     private final CosmosContainer container;
 
 
-    public CosmoDB(Container type) {
+    public NoSQLCosmoDB(Container type) {
         Log.info("start CosmoDB init");
         CosmosDBSource.init();
         container = enumToContainer(type);
         Log.info("finish CosmoDB init");
     }
-    public enum Container {
-        USERS,
-        SHORTS
-    }
-
 
     private CosmosContainer enumToContainer(Container container) {
         switch (container) {
@@ -59,6 +54,15 @@ public class CosmoDB implements DataBase<CosmosBatch> {
         return tryCatch(() -> { //There is no transactional implementation for queryItems using CosmosBatch or any other transactional system available, therefore we pretend there is no transaction
             var res = container.queryItems(query, new CosmosQueryRequestOptions(), clazz);
             return res.stream().toList();
+        }).value();
+    }
+
+    @Override
+    public <T> void sqlupdate(String query, Class<T> clazz, Transaction<CosmosBatch> trans) {
+        tryCatch(() -> { //There is no transactional implementation for queryItems using CosmosBatch or any other transactional system available, therefore we pretend there is no transaction
+            var res = container.queryItems(query, new CosmosQueryRequestOptions(), clazz);
+            res.stream().toList();
+            return null;
         }).value();
     }
 
@@ -107,7 +111,22 @@ public class CosmoDB implements DataBase<CosmosBatch> {
 
         CosmosBatch batch = CosmosBatch.createCosmosBatch(new PartitionKey("lets pretend this is working"));
 
-        c.accept(new CosmoDBTrans(batch));
+        c.accept(new NoSQLCosmoDBTrans(batch));
+
+        CosmosBatchResponse response = container.executeCosmosBatch(batch);
+
+        if (response.isSuccessStatusCode()) {
+            return Result.ok();
+        } else {
+            return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+        }
+    }
+
+    public <T> Result<T> transaction(Consumer<Transaction<CosmosBatch>> c, TransactionProperties props) {
+
+        CosmosBatch batch = CosmosBatch.createCosmosBatch(new PartitionKey(props.props.get("partition_key")));
+
+        c.accept(new NoSQLCosmoDBTrans(batch));
 
         CosmosBatchResponse response = container.executeCosmosBatch(batch);
 

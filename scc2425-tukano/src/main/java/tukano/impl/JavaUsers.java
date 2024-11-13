@@ -11,35 +11,42 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-import com.azure.cosmos.models.CosmosBatch;
-import jakarta.ws.rs.core.Response;
 import main.java.tukano.api.Result;
-import main.java.tukano.api.User;
+import main.java.tukano.api.TukanoUser;
 import main.java.tukano.api.Users;
 import main.java.tukano.impl.auth.AuthenticationCookie;
 import main.java.tukano.impl.storage.cache.*;
-import main.java.tukano.impl.storage.database.azure.CosmoDB;
+import main.java.tukano.impl.storage.database.azure.*;
+import main.java.tukano.impl.storage.database.UnavailableDBType;
+import main.java.tukano.impl.storage.database.Container;
 import main.java.tukano.impl.storage.database.imp.DataBase;
 import main.java.utils.JSON;
 
-public class JavaUsers implements Users {
+public class JavaUsers <T> implements Users {
 	
 	private static Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
 	private static Users instance;
 
 	//private static final DataBase<Session> DB = new HibernateDB();
-	private final DataBase<CosmosBatch> DB = new CosmoDB(CosmoDB.Container.USERS);
+	//private final DataBase<CosmosBatch> DB = new NoSQLCosmoDB(NoSQLCosmoDB.Container.USERS);
+	private final DataBase<T> DB = DBPicker.chooseDB(Container.USERS);
+
+
 	synchronized public static Users getInstance() {
 		if( instance == null )
-			instance = new JavaUsers();
+			try {
+				instance = new JavaUsers();
+			} catch (UnavailableDBType e) {
+				throw new RuntimeException(e);
+			}
 		return instance;
 	}
 	
-	private JavaUsers() {}
+	private JavaUsers() throws UnavailableDBType {}
 	
 	@Override
-	public Result<String> createUser(User user) {
+	public Result<String> createUser(TukanoUser user) {
 		Log.info(() -> format("createUser : %s\n", user));
 
 		if( badUserInfo( user ) )
@@ -49,14 +56,14 @@ public class JavaUsers implements Users {
 	}
 
 	@Override
-	public Result<User> getUser(String userId, String pwd) {
+	public Result<TukanoUser> getUser(String userId, String pwd) {
 		Log.info( () -> format("getUser : userId = %s, pwd = %s\n", userId, pwd));
 
 		if (userId == null)
 			return error(BAD_REQUEST);
 
 		var redisRes = RedisCache.doRedis(j -> {
-			var user = RedisCache.getRedis(j, userId+pwd, u -> JSON.decode(u, User.class));
+			var user = RedisCache.getRedis(j, userId+pwd, u -> JSON.decode(u, TukanoUser.class));
 			if (user.isOK()) {
 				var result = validatedUserOrError(ok(user.value()), pwd);
 				if (result.isOK()){
@@ -68,7 +75,7 @@ public class JavaUsers implements Users {
 		});
 		if (redisRes.isOK()) return redisRes;
 
-		Result<User> result = validatedUserOrError( DB.getOne( userId, User.class), pwd);
+		Result<TukanoUser> result = validatedUserOrError( DB.getOne( userId, TukanoUser.class), pwd);
 
 		if (result.isOK()) {
 			RedisCache.doRedis(j -> {
@@ -82,13 +89,13 @@ public class JavaUsers implements Users {
 	}
 
 	@Override
-	public Result<User> updateUser(String userId, String pwd, User other) {
+	public Result<TukanoUser> updateUser(String userId, String pwd, TukanoUser other) {
 		Log.info(() -> format("updateUser : userId = %s, pwd = %s, user: %s\n", userId, pwd, other));
 
 		if (badUpdateUserInfo(userId, pwd, other))
 			return error(BAD_REQUEST);
 
-		return errorOrResult( validatedUserOrError(DB.getOne( userId, User.class), pwd), user -> {
+		return errorOrResult( validatedUserOrError(DB.getOne( userId, TukanoUser.class), pwd), user -> {
 			var result = DB.updateOne( user.updateFrom(other));
 
 			if (result.isOK()) {
@@ -103,13 +110,13 @@ public class JavaUsers implements Users {
 	}
 
 	@Override
-	public Result<User> deleteUser(String userId, String pwd) {
+	public Result<TukanoUser> deleteUser(String userId, String pwd) {
 		Log.info(() -> format("deleteUser : userId = %s, pwd = %s\n", userId, pwd));
 
 		if (userId == null || pwd == null )
 			return error(BAD_REQUEST);
 
-		Result<User> res = validatedUserOrError( DB.getOne( userId, User.class), pwd);
+		Result<TukanoUser> res = validatedUserOrError( DB.getOne( userId, TukanoUser.class), pwd);
 
 		return errorOrResult( res, user -> {
 
@@ -136,31 +143,31 @@ public class JavaUsers implements Users {
 	}
 
 	@Override
-	public Result<List<User>> searchUsers(String pattern) {
+	public Result<List<TukanoUser>> searchUsers(String pattern) {
 		Log.info( () -> format("searchUsers : patterns = %s\n", pattern));
 
-		var query = format("SELECT * FROM User u WHERE UPPER(u.userId) LIKE '%%%s%%'", pattern.toUpperCase());
-		var hits = DB.sql(query, User.class)
+		var query = format("SELECT * FROM TukanoUser u WHERE UPPER(u.userId) LIKE '%%%s%%'", pattern.toUpperCase());
+		var hits = DB.sql(query, TukanoUser.class)
 				.stream()
-				.map(User::copyWithoutPassword)
+				.map(TukanoUser::copyWithoutPassword)
 				.toList();
 
 		return ok(hits);
 	}
 
 	
-	private Result<User> validatedUserOrError( Result<User> res, String pwd ) {
+	private Result<TukanoUser> validatedUserOrError(Result<TukanoUser> res, String pwd ) {
 		if( res.isOK())
 			return res.value().getPwd().equals( pwd ) ? res : error(FORBIDDEN);
 		else
 			return res;
 	}
 	
-	private boolean badUserInfo( User user) {
+	private boolean badUserInfo( TukanoUser user) {
 		return (user.userId() == null || user.pwd() == null || user.displayName() == null || user.email() == null);
 	}
 	
-	private boolean badUpdateUserInfo( String userId, String pwd, User info) {
+	private boolean badUpdateUserInfo( String userId, String pwd, TukanoUser info) {
 		return (userId == null || pwd == null || info.getUserId() != null && ! userId.equals( info.getUserId()));
 	}
 }

@@ -1,16 +1,12 @@
 package main.java.tukano.impl.storage.cache;
 
 import main.java.tukano.api.Result;
-import main.java.tukano.api.Short;
-import main.java.utils.JSON;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static main.java.tukano.api.Result.error;

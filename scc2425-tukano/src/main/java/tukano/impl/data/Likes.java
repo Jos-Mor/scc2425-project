@@ -7,29 +7,41 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Likes {
-	
-	@Id 
-	String userId;
-	
-	@Id 
-	String shortId;
-	
-	public String getOwnerId() {
-		return ownerId;
-	}
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
+	String id;
+
+	@Id
+
+	String userId;
+
+	@Id
+
+	String shortId;
 
 	String ownerId;
-	
+
+
 	public Likes() {}
 
 	public Likes(String userId, String shortId, String ownerId) {
 		this.userId = userId;
 		this.shortId = shortId;
 		this.ownerId = ownerId;
+		this.id = "l-" + this.userId + "-" + this.ownerId + "-" + this.shortId;
+	}
+
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId; this.id = "l-" + this.userId + "-" + this.ownerId + "-" + this.shortId;
 	}
 
 	public String getUserId() {
@@ -37,7 +49,7 @@ public class Likes {
 	}
 
 	public void setUserId(String userId) {
-		this.userId = userId;
+		this.userId = userId; this.id = "l-" + this.userId + "-" + this.ownerId + "-" + this.shortId;
 	}
 
 	public String getShortId() {
@@ -45,7 +57,22 @@ public class Likes {
 	}
 
 	public void setShortId(String shortId) {
-		this.shortId = shortId;
+		this.shortId = shortId; this.id = "l-" + this.userId + "-" + this.ownerId + "-" + this.shortId;
+	}
+
+	public String id() {
+		return id;
+	}
+	public String userId() {
+		return userId;
+	}
+
+	public String shortId() {
+		return shortId;
+	}
+
+	public String ownerId() {
+		return ownerId;
 	}
 
 	@Override

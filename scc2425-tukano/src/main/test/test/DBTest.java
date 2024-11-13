@@ -1,10 +1,11 @@
 package main.test.test;
 
 import com.azure.cosmos.models.CosmosBatch;
-import main.java.tukano.api.User;
-import main.java.tukano.impl.rest.utils.Props;
-import main.java.tukano.impl.storage.database.azure.CosmoDB;
+import main.java.tukano.api.TukanoUser;
+import main.java.tukano.impl.storage.database.Container;
 import main.java.tukano.impl.storage.database.imp.DataBase;
+import main.java.tukano.impl.storage.database.azure.*;
+
 
 import java.util.Locale;
 
@@ -17,7 +18,7 @@ public class DBTest {
 
         try {
             Locale.setDefault(Locale.US);
-            DataBase<CosmosBatch> db = new CosmoDB(CosmoDB.Container.USERS);
+            DataBase<CosmosBatch> db = new NoSQLCosmoDB(Container.USERS);
 			/*
 			var id1 = "john";
 			var user1 = new User(id1, "12345", "john@nova.pt", "John Smith");
@@ -26,7 +27,7 @@ public class DBTest {
 			System.out.println( res1 );*/
 
 
-            show(db.getOne("kgallagher", User.class));
+            show(db.getOne("kgallagher", TukanoUser.class));
 
 			/*
 

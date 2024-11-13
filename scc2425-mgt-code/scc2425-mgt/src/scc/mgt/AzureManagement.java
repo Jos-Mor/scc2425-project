@@ -49,17 +49,22 @@ public class AzureManagement {
 	static final boolean CREATE_STORAGE = true;
 	static final boolean CREATE_COSMOSDB = true;
 	static final boolean CREATE_FUNCTIONS = false;
-	private static String REDIS_AVAILABLE = "NO";
+	private static final String REDIS_AVAILABLE = "NO";
+
+	private static final String DB_TYPE = "SQL";
+
+	private static final String TOKEN_SECRET = "1234";
 
 
 	// TODO: change your suffix and other names if you want
 	static final String MY_ID = "59457-72394"; // Add your suffix here
-	
+
+	static final String directory = "./resources/";
 	static final String AZURE_COSMOSDB_NAME = "cosmos" + MY_ID;	// Cosmos DB account name
 	static final String AZURE_COSMOSDB_DATABASE = "cosmosdb" + MY_ID;	// Cosmos DB database name
 	static final String[] BLOB_CONTAINERS = { "shorts" };	// TODO: Containers to add to the blob storage
 
-	static final Region[] REGIONS = new Region[] { Region.EUROPE_NORTH}; // Define the regions to deploy resources here
+	static final Region[] REGIONS = new Region[] { Region.EUROPE_NORTH, Region.US_WEST}; // Define the regions to deploy resources here
 	
 	// Name of resource group for each region
 	static final String[] AZURE_RG_REGIONS = Arrays.stream(REGIONS)
@@ -85,12 +90,12 @@ public class AzureManagement {
 
 	// Name of property file with keys and URLS to access resources
 	static final String[] AZURE_PROPS_LOCATIONS = Arrays.stream(REGIONS)
-			.map(reg -> "azurekeys-" + reg.name() + ".props").toArray(String[]::new);
+			.map(reg -> directory + "azurekeys-" + reg.name() + ".props").toArray(String[]::new);
 	
 	// Name of shell script file with commands to set application setting for you application server
 	// and Azure functions
 	static final String[] AZURE_SETTINGS_LOCATIONS = Arrays.stream(REGIONS)
-			.map(reg -> "azureprops-" + reg.name() + ".sh").toArray(String[]::new);
+			.map(reg -> directory + "azureprops-" + reg.name() + ".sh").toArray(String[]::new);
 		
 	public static AzureResourceManager createManagementClient() throws IOException {
 		AzureProfile profile = new AzureProfile(AzureEnvironment.AZURE);
@@ -107,6 +112,78 @@ public class AzureManagement {
 	public static ResourceGroup createResourceGroup(AzureResourceManager azure, String rgName, Region region) {
 		ResourceGroup resourceGroup = azure.resourceGroups().define(rgName).withRegion(region).create();
 		return resourceGroup;
+	}
+
+	public synchronized static void dumpStaticKeys(Map<String, String> props, String propFilename,
+		String settingsFilename, String appName, String functionName, String rgName) throws IOException{
+		synchronized (AzureManagement.class) {
+			Files.write(Paths.get(propFilename),
+					("DB_TYPE=" + DB_TYPE + "\n").getBytes(),
+					StandardOpenOption.APPEND);
+			Files.write(Paths.get(propFilename),
+					("REDIS_AVAILABLE=" + REDIS_AVAILABLE + "\n").getBytes(),
+					StandardOpenOption.APPEND);
+			Files.write(Paths.get(propFilename),
+					("TOKEN_SECRET=" + TOKEN_SECRET + "\n").getBytes(),
+					StandardOpenOption.APPEND);
+		}
+		synchronized (props) {
+			props.put("DB_TYPE", DB_TYPE);
+			props.put("REDIS_AVAILABLE", REDIS_AVAILABLE);
+			props.put("TOKEN_SECRET", TOKEN_SECRET);
+
+		}
+
+		StringBuffer cmd = new StringBuffer();
+		if (functionName != null) {
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(functionName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"DB_TYPE=");
+			cmd.append(DB_TYPE);
+			cmd.append("\"\n");
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(functionName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"REDIS_AVAILABLE=");
+			cmd.append(REDIS_AVAILABLE);
+			cmd.append("\"\n");
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(functionName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"TOKEN_SECRET=");
+			cmd.append(TOKEN_SECRET);
+			cmd.append("\"\n");
+		}
+		if (appName != null) {
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(appName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"DB_TYPE=");
+			cmd.append(DB_TYPE);
+			cmd.append("\"\n");
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(appName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"REDIS_AVAILABLE=");
+			cmd.append(REDIS_AVAILABLE);
+			cmd.append("\"\n");
+			cmd.append("az functionapp config appsettings set --name ");
+			cmd.append(appName);
+			cmd.append(" --resource-group ");
+			cmd.append(rgName);
+			cmd.append(" --settings \"TOKEN_SECRET=");
+			cmd.append(TOKEN_SECRET);
+			cmd.append("\"\n");
+		}
+		synchronized (AzureManagement.class) {
+			Files.write(Paths.get(settingsFilename), cmd.toString().getBytes(), StandardOpenOption.APPEND);
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,9 +438,6 @@ public class AzureManagement {
 			cmd.append(" --settings \"REDIS_URL=");
 			cmd.append(cache.hostname());
 			cmd.append("\"\n");
-			cmd.append(" --settings \"REDIS_AVAILABLE=");
-			cmd.append(REDIS_AVAILABLE);
-			cmd.append("\"\n");
 		}
 		if (functionName != null) {
 			cmd.append("az functionapp config appsettings set --name ");
@@ -379,9 +453,6 @@ public class AzureManagement {
 			cmd.append(rgName);
 			cmd.append(" --settings \"REDIS_URL=");
 			cmd.append(cache.hostname());
-			cmd.append("\"\n");
-			cmd.append(" --settings \"REDIS_AVAILABLE=");
-			cmd.append(REDIS_AVAILABLE);
 			cmd.append("\"\n");
 		}
 		synchronized (AzureManagement.class) {
@@ -445,6 +516,11 @@ public class AzureManagement {
 				for (String propF : AZURE_SETTINGS_LOCATIONS) {
 					Files.deleteIfExists(Paths.get(propF));
 					Files.write(Paths.get(propF), "".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+				}
+
+				for (int i = 0; i < REGIONS.length; i++) {
+					dumpStaticKeys(props.get(REGIONS[i].name()), AZURE_PROPS_LOCATIONS[i],
+							AZURE_SETTINGS_LOCATIONS[i], AZURE_APP_NAME[i], AZURE_FUNCTIONS_NAME[i], AZURE_RG_REGIONS[i]);
 				}
 
 				// Create resource groups

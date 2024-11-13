@@ -14,6 +14,8 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 
+import static main.java.tukano.impl.rest.TukanoRestServer.Log;
+
 /**
  * A helper class to perform POJO (Plain Old Java Objects) persistence, using
  * Hibernate and a backing relational database.
@@ -29,7 +31,11 @@ public class Hibernate {
 
 	private Hibernate() {
 		try {
-			sessionFactory = new Configuration().configure(new File(HIBERNATE_CFG_FILE)).buildSessionFactory();
+			Log.info("hibernate init");
+			sessionFactory = new Configuration().configure().buildSessionFactory();
+			Log.info(sessionFactory.toString());
+			Log.info("hibernate finish init");
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,7 +109,7 @@ public class Hibernate {
 	}
 
 	public <T> Result<T> getOne(Object id, Class<T> clazz, Session session) {
-		try (session) {
+		try {
 			var res = session.find(clazz, id);
 			if (res == null)
 				return Result.error(ErrorCode.NOT_FOUND);
@@ -124,9 +130,17 @@ public class Hibernate {
 	}
 
 	public <T> List<T> sql(String sqlStatement, Class<T> clazz, Session session) {
-		try (session) {
+		try {
 			var query = session.createNativeQuery(sqlStatement, clazz);
 			return query.list();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public <T> void sqlUpdate(String sqlStatement, Class<T> clazz, Session session) {
+		try {
+			session.createNativeQuery(sqlStatement, clazz).executeUpdate();
 		} catch (Exception e) {
 			throw e;
 		}
@@ -144,18 +158,21 @@ public class Hibernate {
 		try (var session = sessionFactory.openSession()) {
 			tx = session.beginTransaction();
 			var res = func.apply( session );
+			Log.info("function finished");
 			session.flush();
 			tx.commit();
+			Log.info("transaction commited");
 			return res;
 		}
 		catch (ConstraintViolationException __) {	
 			return Result.error(ErrorCode.CONFLICT);
 		}  
 		catch (Exception e) {
-			if( tx != null )
-				tx.rollback();
-			
 			e.printStackTrace();
+			if( tx != null ) {
+				tx.rollback();
+			}
+
 			throw e;
 		}
 	}

@@ -16,7 +16,7 @@ import static main.java.tukano.api.Result.ErrorCode.*;
 import static main.java.tukano.api.Result.error;
 import static main.java.tukano.api.Result.ok;
 
-public class AzureStorage implements BlobStorage {
+public class AzureBlobStorage implements BlobStorage {
     Map<String, byte[]> map = new HashMap<>();
 
 

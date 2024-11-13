@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 import main.java.tukano.api.Result;
-import main.java.tukano.api.Short;
-import main.java.tukano.api.User;
+import main.java.tukano.api.TukanoShort;
+import main.java.tukano.api.TukanoUser;
 import main.java.tukano.impl.rest.TukanoRestServer;
 import main.test.tukano.clients.rest.RestBlobsClient;
 import main.test.tukano.clients.rest.RestShortsClient;
@@ -38,17 +38,17 @@ public class Test {
 		var users = new RestUsersClient( serverURI);
 		var shorts = new RestShortsClient(serverURI);
 				
-		 show(users.createUser( new User("wales", "12345", "jimmy@wikipedia.pt", "Jimmy Wales") ));
+		 show(users.createUser( new TukanoUser("wales", "12345", "jimmy@wikipedia.pt", "Jimmy Wales") ));
 		 
-		 show(users.createUser( new User("liskov", "54321", "liskov@mit.edu", "Barbara Liskov") ));
+		 show(users.createUser( new TukanoUser("liskov", "54321", "liskov@mit.edu", "Barbara Liskov") ));
 		 
-		 show(users.updateUser("wales", "12345", new User("wales", "12345", "jimmy@wikipedia.com", "" ) ));
+		 show(users.updateUser("wales", "12345", new TukanoUser("wales", "12345", "jimmy@wikipedia.com", "" ) ));
 		 
 		 
 		 show(users.searchUsers(""));
 		
 		
-		Result<Short> s1, s2;
+		Result<TukanoShort> s1, s2;
 
 		show(s2 = shorts.createShort("liskov", "54321"));		
 		show(s1 = shorts.createShort("wales", "12345"));

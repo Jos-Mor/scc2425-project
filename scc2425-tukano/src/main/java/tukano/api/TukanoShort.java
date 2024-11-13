@@ -14,7 +14,7 @@ import main.java.tukano.impl.Token;
  *
  */
 @Entity
-public class Short {
+public class TukanoShort {
 	
 	@Id
 	String id;
@@ -24,19 +24,19 @@ public class Short {
 	long timestamp;
 	int totalLikes;
 
-	public Short() {}
+	public TukanoShort() {}
 	
-	public Short(String shortId, String ownerId, String blobUrl, long timestamp, int totalLikes) {
+	public TukanoShort(String shortId, String ownerId, String blobUrl, long timestamp, int totalLikes) {
 		super();
 		this.shortId = shortId;
-		this.id = shortId;
+		this.id = this.shortId;
 		this.ownerId = ownerId;
 		this.blobUrl = blobUrl;
 		this.timestamp = timestamp;
 		this.totalLikes = totalLikes;
 	}
 
-	public Short(String shortId, String ownerId, String blobUrl) {
+	public TukanoShort(String shortId, String ownerId, String blobUrl) {
 		this( shortId, ownerId, blobUrl, System.currentTimeMillis(), 0);
 	}
 
@@ -44,20 +44,18 @@ public class Short {
 		return id;
 	}
 
-	public void setId(String shortId) {
-		this.shortId = shortId; this.id = shortId;
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getShortId() {
 		return shortId;
 	}
 
 	public void setShortId(String shortId) {
-		this.shortId = shortId; this.id = shortId;
+		this.shortId = shortId; this.id = this.shortId;
 	}
 
-	public String getOwnerId() {
-		return ownerId;
-	}
+	public String getOwnerId() { return ownerId; }
 
 	public void setOwnerId(String ownerId) {
 		this.ownerId = ownerId;
@@ -93,8 +91,8 @@ public class Short {
 				+ timestamp + ", totalLikes=" + totalLikes + "]";
 	}
 	
-	public Short copyWithLikes_And_Token( long totLikes) {
+	public TukanoShort copyWithLikes_And_Token(long totLikes) {
 		var urlWithToken = String.format("%s?token=%s", blobUrl, Token.get(blobUrl));
-		return new Short( shortId, ownerId, urlWithToken, timestamp, (int)totLikes);
+		return new TukanoShort( shortId, ownerId, urlWithToken, timestamp, (int)totLikes);
 	}	
 }

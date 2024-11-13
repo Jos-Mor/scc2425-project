@@ -13,7 +13,7 @@ public interface Users {
 	 * 		CONFLICT - if the name already exists. 
 	 * 		BAD_REQUEST - otherwise.
 	 */
-	Result<String> createUser(User user);
+	Result<String> createUser(TukanoUser user);
 	
 	/**
 	 * Obtains the information on the user identified by userId
@@ -23,7 +23,7 @@ public interface Users {
 	 *         FORBIDDEN - if the password is incorrect; 
 	 *         NOT_FOUND - if no user exists with the provided userId
 	 */
-	Result<User> getUser(String userId, String pwd);
+	Result<TukanoUser> getUser(String userId, String pwd);
 	
 	/**
 	 * Modifies the information of a user. Value of null, in any field of the user argument, means the field will remain as unchanged 
@@ -36,7 +36,7 @@ public interface Users {
 	 *         NOT_FOUND - if no user exists with the provided userId 
 	 *         BAD_REQUEST - otherwise.
 	 */
-	Result<User> updateUser(String userId, String pwd, User user);
+	Result<TukanoUser> updateUser(String userId, String pwd, TukanoUser user);
 	
 	/**
 	 * Deletes the user identified by userId
@@ -48,7 +48,7 @@ public interface Users {
 	 *         NOT_FOUND if no user exists with the provided name
 	 *         BAD_REQUEST otherwise
 	 */
-	Result<User> deleteUser(String userId, String pwd);
+	Result<TukanoUser> deleteUser(String userId, String pwd);
 	
 	/**
 	 * Returns the list of users for which the pattern is a substring of the userId, case-insensitive. 
@@ -58,5 +58,5 @@ public interface Users {
 	 * @return OK when the search was successful, regardless of the number of hits (including 0 hits). 
 	 *         BAD_REQUEST - otherwise.
 	 */
-	Result<List<User>> searchUsers(String pattern);	
+	Result<List<TukanoUser>> searchUsers(String pattern);
 }

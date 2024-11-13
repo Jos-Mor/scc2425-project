@@ -9,24 +9,27 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import com.azure.cosmos.models.CosmosBatch;
 import main.java.tukano.api.Blobs;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.Shorts;
-import main.java.tukano.api.Short;
+import main.java.tukano.api.TukanoShort;
 
 
-import main.java.tukano.api.User;
+import main.java.tukano.api.TukanoUser;
+import main.java.tukano.impl.data.FeedResponse;
 import main.java.tukano.impl.data.Following;
 import main.java.tukano.impl.data.Likes;
 import main.java.tukano.impl.rest.TukanoRestServer;
-import main.java.tukano.impl.storage.database.azure.CosmoDB;
+import main.java.tukano.impl.storage.database.Container;
+import main.java.tukano.impl.storage.database.azure.*;
+import main.java.tukano.impl.storage.database.UnavailableDBType;
 import main.java.tukano.impl.storage.database.imp.DataBase;
+import main.java.tukano.impl.storage.database.transaction.TransactionProperties;
 import main.java.utils.JSON;
 
 import main.java.tukano.impl.storage.cache.*;
 
-public class JavaShorts implements Shorts {
+public  class JavaShorts <T> implements Shorts {
 
 	private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 	
@@ -34,42 +37,47 @@ public class JavaShorts implements Shorts {
 
 
 	//private static final DataBase<Session> DB = new HibernateDB();
-	private static final DataBase<CosmosBatch> DB = new CosmoDB(CosmoDB.Container.SHORTS);
+	private final DataBase<T> DB = DBPicker.chooseDB(Container.SHORTS);
 
 	synchronized public static Shorts getInstance() {
-		if( instance == null )
-			instance = new JavaShorts();
+		if( instance == null ) {
+			try {
+				instance = new JavaShorts();
+			} catch (UnavailableDBType e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return instance;
 	}
 	
-	private JavaShorts() {}
+	private JavaShorts() throws UnavailableDBType {}
 	
 	
 	@Override
-	public Result<Short> createShort(String userId, String password) {
+	public Result<TukanoShort> createShort(String userId, String password) {
 		Log.info(() -> format("createShort : userId = %s, pwd = %s\n", userId, password));
 
 		return errorOrResult( okUser(userId, password), user -> {
+			Log.info("obtained user");
 			
 			var shortId = format("%s+%s", userId, UUID.randomUUID());
 			var blobUrl = format("%s/%s/%s", TukanoRestServer.serverURI, Blobs.NAME, shortId);
-			var shrt = new Short(shortId, userId, blobUrl);
+			var shrt = new TukanoShort(shortId, userId, blobUrl);
 
-			return errorOrValue(DB.insertOne(shrt), (Short s) -> s.copyWithLikes_And_Token(0));
+			return errorOrValue(DB.insertOne(shrt), (TukanoShort s) -> s.copyWithLikes_And_Token(0));
 		});
 	}
 
 	@Override
-	public Result<Short> getShort(String shortId) {
+	public Result<TukanoShort> getShort(String shortId) {
 
 		Log.info(() -> format("getShort : shortId = %s\n", shortId));
 
 		if( shortId == null )
 			return error(BAD_REQUEST);
 
-
 		var redisRes = RedisCache.doRedis( j -> {
-			var res1 = RedisCache.getRedis(j, shortId, (res) -> JSON.decode(res, Short.class));
+			var res1 = RedisCache.getRedis(j, shortId, (res) -> JSON.decode(res, TukanoShort.class));
 			var res2 = RedisCache.getRedis(j, shortId+"-like", (likes) -> Long.parseLong(likes));
 			if (res1.isOK() && res2.isOK()) {
 				return ok(res1.value().copyWithLikes_And_Token(res2.value()));
@@ -78,6 +86,8 @@ public class JavaShorts implements Shorts {
 		});
 
 		if (redisRes.isOK()) return redisRes;
+
+		Log.info("done redis...");
 
 		/*
 		try (var jedis = RedisCache.getCachePool().getResource()) {
@@ -93,11 +103,21 @@ public class JavaShorts implements Shorts {
 		}
 		*/
 
-		var query = format("SELECT count(*) FROM Likes l WHERE l.shortId = '%s'", shortId);
-		var likes = DB.sql(query, Long.class);
-		return errorOrValue( DB.getOne(shortId, Short.class),
-				(Short shrt) -> {
-					Short shrt2 = shrt.copyWithLikes_And_Token(likes.get(0));
+		final String[] query = new String[1];
+		DBPicker.runSQLOrNot(
+				() -> {
+					query[0] = format("SELECT count(l) FROM Likes l WHERE l.shortId = '%s'", shortId);
+				}, () -> {
+					query[0] = format("SELECT value count(l) FROM Likes l WHERE l.shortId = '%s' and l.userId != null", shortId);
+				});
+
+		var likes = DB.sql(query[0], Long.class);
+		Log.info("obtaining short...");
+		return errorOrValue( DB.getOne(shortId, TukanoShort.class),
+				(TukanoShort shrt) -> {
+					Log.info("short obtained: " + shrt.toString());
+					TukanoShort shrt2 = shrt.copyWithLikes_And_Token(likes.get(0));
+					Log.info("short copied: " + shrt2.toString());
 
 					RedisCache.doRedis(j -> {
 						RedisCache.setRedis(j, shortId, shrt, (s) -> JSON.encode(shrt));
@@ -116,18 +136,38 @@ public class JavaShorts implements Shorts {
 	public Result<Void> deleteShort(String shortId, String password) {
 		Log.info(() -> format("deleteShort : shortId = %s, pwd = %s\n", shortId, password));
 
-		return errorOrResult( getShort(shortId), (Short shrt) ->
+		return errorOrResult( getShort(shortId), (TukanoShort shrt) ->
 				errorOrResult( okUser( shrt.getOwnerId(), password), user ->
 					DB.transaction(trans -> {
+						Log.info("in transaction...");
 
 						DB.deleteOne(shrt.getShortId(), shrt, trans);
 						//hibernate.remove( shrt);
+						Log.info("deleted one");
 
-						var query = format("DELETE Likes l WHERE l.shortId = '%s'", shortId);
-						//hibernate.createNativeQuery( query, Likes.class).executeUpdate();
-						DB.sql(query, Likes.class, trans);
+						DBPicker.runSQLOrNot(
+								() -> {
+									var query = format("DELETE from Likes l WHERE l.shortId = '%s'", shortId);
+									DB.sqlupdate(query, Likes.class, trans);
+								}, () -> {
+									var query = format("""
+											SELECT value {
+											    userId: l.userId,
+											    shortId: l.shortId,
+											    ownerId: l.ownerId
+											    } FROM Likes l WHERE l.shortId = '%s'
+											    and l.userId != null and l.shortId != null and l.ownerId != null
+											    """, shortId);
+
+									List<Likes> list = DB.sql(query, Likes.class);
+									list.forEach(DB::deleteOne);
+								});
+
+						Log.info("deleted likes");
 
 						JavaBlobs.getInstance().delete(shrt.getBlobUrl(), Token.get() );
+
+						Log.info("deleted blob");
 
 						RedisCache.doRedis(j -> {
 							var result = j.get(shortId);
@@ -137,7 +177,9 @@ public class JavaShorts implements Shorts {
 							}
 							return ok();
 						});
-					})
+						Log.info("redis done");
+
+					}, new TransactionProperties("partition_key", shortId))
 				)
 		);
 	}
@@ -146,8 +188,14 @@ public class JavaShorts implements Shorts {
 	public Result<List<String>> getShorts(String userId) {
 		Log.info(() -> format("getShorts : userId = %s\n", userId));
 
-		var query = format("SELECT s.shortId FROM Short s WHERE s.ownerId = '%s'", userId);
-		return errorOrValue( okUser(userId), DB.sql( query, String.class));
+		final String[] query = new String[1];
+		DBPicker.runSQLOrNot(
+				() -> {
+					query[0] = format("SELECT s.shortId FROM TukanoShort s WHERE s.ownerId = '%s'", userId);
+				}, () -> {
+					query[0] = format("SELECT value s.shortId FROM TukanoShort s WHERE s.ownerId = '%s' and s.timestamp != null", userId);
+				});
+		return errorOrValue( okUser(userId), DB.sql( query[0], String.class));
 	}
 
 	@Override
@@ -157,7 +205,7 @@ public class JavaShorts implements Shorts {
 		
 		return errorOrResult( okUser(userId1, password), user -> {
 			var f = new Following(userId1, userId2);
-			return errorOrVoid( okUser( userId2), isFollowing ? DB.insertOne( f ) : DB.deleteOne( f ));	
+			return errorOrVoid( okUser( userId2), isFollowing ? DB.insertOne( f ) : DB.deleteOne( f ));
 		});			
 	}
 
@@ -165,8 +213,14 @@ public class JavaShorts implements Shorts {
 	public Result<List<String>> followers(String userId, String password) {
 		Log.info(() -> format("followers : userId = %s, pwd = %s\n", userId, password));
 
-		var query = format("SELECT f.follower FROM Following f WHERE f.followee = '%s'", userId);		
-		return errorOrValue( okUser(userId, password), DB.sql(query, String.class));
+		final String[] query = new String[1];
+		DBPicker.runSQLOrNot(
+			() -> {
+				query[0] = format("SELECT f.follower FROM Following f WHERE f.followee = '%s'", userId);
+			}, () -> {
+				query[0] = format("SELECT value f.follower FROM Following f WHERE f.followee = '%s'", userId);
+			});
+		return errorOrValue( okUser(userId, password), DB.sql(query[0], String.class));
 	}
 
 	@Override
@@ -199,10 +253,16 @@ public class JavaShorts implements Shorts {
 		Log.info(() -> format("likes : shortId = %s, pwd = %s\n", shortId, password));
 
 		return errorOrResult( getShort(shortId), shrt -> {
-			
-			var query = format("SELECT l.userId FROM Likes l WHERE l.shortId = '%s'", shortId);					
-			
-			return errorOrValue( okUser( shrt.getOwnerId(), password ), DB.sql(query, String.class));
+
+			final String[] query = new String[1];
+			DBPicker.runSQLOrNot(
+					() -> {
+						query[0] = format("SELECT l.userId FROM Likes l WHERE l.shortId = '%s'", shortId);
+					}, () -> {
+						query[0] = format("SELECT value l.userId FROM Likes l WHERE l.shortId = '%s' and l.userId != null and l.ownerId != null", shortId);
+					});
+
+			return errorOrValue( okUser( shrt.getOwnerId(), password ), DB.sql(query[0], String.class));
 		});
 	}
 
@@ -210,18 +270,42 @@ public class JavaShorts implements Shorts {
 	public Result<List<String>> getFeed(String userId, String password) {
 		Log.info(() -> format("getFeed : userId = %s, pwd = %s\n", userId, password));
 
-		final var QUERY_FMT = """
-				SELECT s.shortId, s.timestamp FROM Short s WHERE	s.ownerId = '%s'				
-				UNION			
-				SELECT s.shortId, s.timestamp FROM Short s, Following f 
-					WHERE 
-						f.followee = s.ownerId AND f.follower = '%s' 
-				ORDER BY s.timestamp DESC""";
 
-		return errorOrValue( okUser( userId, password), DB.sql( format(QUERY_FMT, userId, userId), String.class));		
+
+		List<String> list = new java.util.ArrayList<>(List.of());
+
+		DBPicker.runSQLOrNot(
+				() -> {
+					final var QUERY_FMT = """
+						(SELECT s.shortId, s.timestamp FROM TukanoShort s WHERE	s.ownerId = '%s')				
+						UNION			
+						(SELECT s.shortId, s.timestamp FROM TukanoShort s, Following f 
+							WHERE 
+								f.followee = s.ownerId AND f.follower = '%s') 
+						ORDER BY timestamp DESC""";
+					list.addAll(DB.sql( format(QUERY_FMT, userId, userId), String.class));
+
+				}, () -> {
+					List<FeedResponse> list2 = new java.util.ArrayList<>(List.of());
+					var query1 = format("SELECT s.shortId, s.timestamp FROM TukanoShort s WHERE s.ownerId = '%s' and s.timestamp != null", userId);
+
+					list2.addAll(DB.sql( query1, FeedResponse.class));
+
+					var query2 = format("SELECT value l.followee from Following l where l.follower = '%s'", userId);
+
+					DB.sql( query2, String.class).forEach((s) -> {
+						var query3 = format("SELECT s.shortId, s.timestamp FROM TukanoShort s WHERE s.ownerId = '%s' and s.timestamp != null and s.shortId != null", s);
+						list2.addAll(DB.sql(query3, FeedResponse.class));
+					});
+
+					list.addAll(list2.stream().map(FeedResponse::toString).toList());
+
+				});
+
+		return errorOrValue( okUser( userId, password), list);
 	}
 		
-	protected Result<User> okUser(String userId, String pwd) {
+	protected Result<TukanoUser> okUser(String userId, String pwd) {
 		return JavaUsers.getInstance().getUser(userId, pwd);
 	}
 	
@@ -245,20 +329,35 @@ public class JavaShorts implements Shorts {
 			//get shorts
 			List<String> list = this.getShorts(userId).value();
 
-			//delete shorts
-			var query1 = format("DELETE Short s WHERE s.ownerId = '%s'", userId);
-			DB.sql(query1, Short.class, trans);
-			//hibernate.createQuery(query1, Short.class).executeUpdate();
+			DBPicker.runSQLOrNot(
+				() -> {
+					//delete shorts
+					var query1 = format("DELETE from TukanoShort s WHERE s.ownerId = '%s'", userId);
+					DB.sqlupdate(query1, TukanoShort.class, trans);
+					//hibernate.createQuery(query1, Short.class).executeUpdate();
 
-			//delete follows
-			var query2 = format("DELETE Following f WHERE f.follower = '%s' OR f.followee = '%s'", userId, userId);
-			DB.sql(query2, Following.class, trans);
-			//hibernate.createQuery(query2, Following.class).executeUpdate();
+					//delete follows
+					var query2 = format("DELETE from Following f WHERE f.follower = '%s' OR f.followee = '%s'", userId, userId);
+					DB.sqlupdate(query2, Following.class, trans);
+					//hibernate.createQuery(query2, Following.class).executeUpdate();
 
-			//delete likes
-			var query3 = format("DELETE Likes l WHERE l.ownerId = '%s' OR l.userId = '%s'", userId, userId);
-			DB.sql(query3, Likes.class, trans);
-			//hibernate.createQuery(query3, Likes.class).executeUpdate();
+					//delete likes
+					var query3 = format("DELETE from Likes l WHERE l.ownerId = '%s' OR l.userId = '%s'", userId, userId);
+					DB.sqlupdate(query3, Likes.class, trans);
+					//hibernate.createQuery(query3, Likes.class).executeUpdate();
+
+				}, () -> {
+
+					var query1 = format("SELECT * from TukanoShort s WHERE s.ownerId = '%s' and s.timestamp != null", userId);
+					DB.sql(query1, Short.class).forEach(DB::deleteOne);
+
+					var query2 = format("SELECT * from Following f WHERE f.follower = '%s' OR f.followee = '%s'", userId, userId);
+					DB.sql(query2, Following.class).forEach(DB::deleteOne);
+
+					var query3 = format("SELECT * from Likes l WHERE (l.ownerId = '%s' OR l.userId = '%s') and l.userId != null", userId, userId);
+					DB.sql(query3, Likes.class).forEach(DB::deleteOne);
+
+					});
 
 			RedisCache.doRedis(j -> {
 				list.forEach(shrt -> {
@@ -270,7 +369,7 @@ public class JavaShorts implements Shorts {
 				});
 				return ok();
 			});
-		});
+		}, new TransactionProperties("partition_key", userId));
 	}
 	
 }

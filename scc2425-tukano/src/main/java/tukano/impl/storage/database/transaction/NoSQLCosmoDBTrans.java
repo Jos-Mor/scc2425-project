@@ -4,8 +4,8 @@ import com.azure.cosmos.models.CosmosBatch;
 
 import java.util.function.Function;
 
-public class CosmoDBTrans implements Transaction <CosmosBatch>{
-    public CosmoDBTrans(CosmosBatch b) {
+public class NoSQLCosmoDBTrans implements Transaction <CosmosBatch>{
+    public NoSQLCosmoDBTrans(CosmosBatch b) {
         batch = b;
     }
 

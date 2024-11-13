@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import main.java.tukano.impl.Token;
 import main.java.tukano.impl.rest.utils.Props;
 import main.java.utils.IP;
 import jakarta.ws.rs.core.Application;
@@ -34,16 +35,22 @@ public class TukanoRestServer extends Application {
 	public TukanoRestServer() {
 		serverURI = String.format(SERVER_BASE_URI, IP.hostname(), PORT);
 
+		Log.info("init server at " + serverURI);
 		//professor's code
 		resources.add(RestBlobsResource.class);
 		resources.add(RestUsersResource.class);
 		resources.add(RestShortsResource.class);
         resources.add(ControlResource.class);
 
-		singletons.add(AuthenticationCookie.class);
+		Log.info("added auth");
+
+		//singletons.add(AuthenticationCookie.class);
 
 		Props.load("azurekeys-northeurope.props"); //place the props file in resources folder under java/main
 
+		Token.setSecret( System.getenv("TOKEN_SECRET"));
+
+		Log.info("finished server init");
 	}
 
 	@Override

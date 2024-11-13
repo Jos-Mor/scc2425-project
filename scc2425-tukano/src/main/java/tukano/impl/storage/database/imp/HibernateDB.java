@@ -5,10 +5,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import main.java.tukano.api.Result;
+import main.java.tukano.impl.storage.database.transaction.TransactionProperties;
 import main.java.utils.Hibernate;
 import main.java.tukano.impl.storage.database.transaction.HibernateTrans;
 import main.java.tukano.impl.storage.database.transaction.Transaction;
 import org.hibernate.Session;
+
+import static main.java.tukano.impl.rest.TukanoRestServer.Log;
 
 public class HibernateDB implements DataBase<Session> {
 
@@ -24,11 +27,11 @@ public class HibernateDB implements DataBase<Session> {
 		return trans.add(session -> Hibernate.getInstance().sql(query, clazz, session));
 	}
 
-
-	public <T> List<T> sql(Class<T> clazz, String fmt, Object ... args) {
-		return Hibernate.getInstance().sql(String.format(fmt, args), clazz);
+	@Override
+	public <T> void sqlupdate(String query, Class<T> clazz, Transaction<Session> trans) {
+		trans.add(session -> {Hibernate.getInstance().sqlUpdate(query, clazz, session); return null;});
 	}
-	
+
 	public <T> Result<T> getOne(String id, Class<T> clazz) {
 		return Hibernate.getInstance().getOne(id, clazz);
 	}
@@ -63,12 +66,25 @@ public class HibernateDB implements DataBase<Session> {
 
 	@Override
 	public <T> Result<T> transaction(Consumer<Transaction<Session>> c) {
-
 		return Hibernate.getInstance().execute(t -> {
+			Log.info("in transaction hibernate");
 			var trans = t.beginTransaction();
+			try {
+				HibernateTrans hibtrans = new HibernateTrans(t);
+				c.accept(hibtrans);
+				trans.commit();
+			} catch (Exception e) {
+				trans.rollback();
+				throw e;
+			}
+		});
+	}
+
+	@Override
+	public <T> Result<T> transaction(Consumer<Transaction<Session>> c, TransactionProperties props) {
+		return Hibernate.getInstance().execute(t -> {
 			HibernateTrans hibtrans = new HibernateTrans(t);
 			c.accept(hibtrans);
-			trans.commit();
 		});
 	}
 

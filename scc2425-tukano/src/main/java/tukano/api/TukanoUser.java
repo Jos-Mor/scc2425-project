@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class User {
+public class TukanoUser {
 	
 	@Id
 	private String id;
@@ -13,9 +13,9 @@ public class User {
 	private String email;	
 	private String displayName;
 
-	public User() {}
+	public TukanoUser() {}
 	
-	public User(String userId, String pwd, String email, String displayName) {
+	public TukanoUser(String userId, String pwd, String email, String displayName) {
 		this.pwd = pwd;
 		this.email = email;
 		this.userId = userId;
@@ -78,12 +78,12 @@ public class User {
 		return "User [userId=" + userId + ", pwd=" + pwd + ", email=" + email + ", displayName=" + displayName + "]";
 	}
 	
-	public User copyWithoutPassword() {
-		return new User(userId, "", email, displayName);
+	public TukanoUser copyWithoutPassword() {
+		return new TukanoUser(userId, "", email, displayName);
 	}
 	
-	public User updateFrom( User other ) {
-		return new User( userId, 
+	public TukanoUser updateFrom(TukanoUser other ) {
+		return new TukanoUser( userId,
 				other.pwd != null ? other.pwd : pwd,
 				other.email != null ? other.email : email, 
 				other.displayName != null ? other.displayName : displayName);

@@ -2,10 +2,10 @@
 <hibernate-configuration>
 	<session-factory>
 		<!-- JDBC Database connection settings -->
-		<property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
-		<property name="connection.url">jdbc:hsqldb:mem:tukano</property>
-		<property name="connection.username">sa</property>
-		<property name="connection.password"></property>
+		<property name="connection.driver_class">org.postgresql.Driver</property>
+		<property name="connection.url">jdbc:postgresql://c-c59457-72394-northeurope.yt2a2brnluf4q6.postgres.cosmos.azure.com:5432/citus?user=citus&amp;password=c59457-72394&amp;sslmode=require</property>
+		<property name="connection.username">citus</property>
+		<property name="connection.password">c59457-72394</property>
 		<!-- JDBC connection pool settings ... using built-in test pool -->
 		<property name="connection.pool_size">64</property>
 		<!-- Echo the SQL to stdout -->
@@ -13,16 +13,16 @@
 		<!-- Set the current session context -->
 		<property name="current_session_context_class">thread</property>
 		<!-- Drop and re-create the database schema on startup -->
-		<property name="hbm2ddl.auto">create-drop</property>
+		<!-- <property name="hbm2ddl.auto">create-drop</property> -->
 		<!-- dbcp connection pool configuration -->
 		<property name="hibernate.dbcp.initialSize">5</property>
 		<property name="hibernate.dbcp.maxTotal">20</property>
 		<property name="hibernate.dbcp.maxIdle">10</property>
 		<property name="hibernate.dbcp.minIdle">5</property>
 		<property name="hibernate.dbcp.maxWaitMillis">-1</property>
-		<mapping class="tukano.api.User" />
-		<mapping class="tukano.api.Short" />
-		<mapping class="tukano.impl.data.Following" />
-		<mapping class="tukano.impl.data.Likes" />
+		<mapping class="main.java.tukano.api.TukanoUser" />
+		<mapping class="main.java.tukano.api.TukanoShort" />
+		<mapping class="main.java.tukano.impl.data.Following" />
+		<mapping class="main.java.tukano.impl.data.Likes" />
 	</session-factory>
 </hibernate-configuration>

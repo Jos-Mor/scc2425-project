@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import main.java.tukano.api.Shorts;
 import main.java.tukano.api.Result;
-import main.java.tukano.api.Short;
+import main.java.tukano.api.TukanoShort;
 import main.java.tukano.api.rest.RestShorts;
 
 public class RestShortsClient extends RestClient implements Shorts {
@@ -16,14 +16,14 @@ public class RestShortsClient extends RestClient implements Shorts {
 		super(serverURI, RestShorts.PATH);
 	}
 
-	public Result<Short> _createShort(String userId, String password) {
+	public Result<TukanoShort> _createShort(String userId, String password) {
 		return super.toJavaResult(
 				target
 				.path(userId)
 				.queryParam(RestShorts.PWD, password )
 				.request()
 				.accept(MediaType.APPLICATION_JSON)
-				.post( Entity.json(null)), Short.class);
+				.post( Entity.json(null)), TukanoShort.class);
 	}
 
 	public Result<Void> _deleteShort(String shortId, String password) {
@@ -35,12 +35,12 @@ public class RestShortsClient extends RestClient implements Shorts {
 				.delete());
 	}
 
-	public Result<Short> _getShort(String shortId) {
+	public Result<TukanoShort> _getShort(String shortId) {
 		return super.toJavaResult(
 				target
 				.path(shortId)
 				.request()
-				.get(), Short.class);
+				.get(), TukanoShort.class);
 	}
 
 	public Result<List<String>> _getShorts(String userId) {
@@ -128,7 +128,7 @@ public class RestShortsClient extends RestClient implements Shorts {
 	}
 		
 	@Override
-	public Result<Short> createShort(String userId, String password) {
+	public Result<TukanoShort> createShort(String userId, String password) {
 		return super.reTry( () -> _createShort(userId, password));
 	}
 
@@ -138,7 +138,7 @@ public class RestShortsClient extends RestClient implements Shorts {
 	}
 
 	@Override
-	public Result<Short> getShort(String shortId) {
+	public Result<TukanoShort> getShort(String shortId) {
 		return super.reTry( () -> _getShort(shortId));
 	}
 

@@ -1,7 +1,6 @@
 package main.java.tukano.impl.storage.database.azure;
 
 import com.azure.cosmos.*;
-import com.azure.cosmos.models.PartitionKey;
 
 import static main.java.tukano.impl.rest.TukanoRestServer.Log;
 
@@ -23,6 +22,7 @@ public class CosmosDBSource {
                 .gatewayMode()
                 // replace by .directMode() for better performance
                 .consistencyLevel(ConsistencyLevel.SESSION)
+                .multipleWriteRegionsEnabled(true)
                 .connectionSharingAcrossClientsEnabled(true)
                 .contentResponseOnWriteEnabled(true)
                 .buildClient();

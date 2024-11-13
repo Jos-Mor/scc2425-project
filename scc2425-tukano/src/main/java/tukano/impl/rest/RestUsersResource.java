@@ -3,7 +3,7 @@ package main.java.tukano.impl.rest;
 import java.util.List;
 
 import jakarta.inject.Singleton;
-import main.java.tukano.api.User;
+import main.java.tukano.api.TukanoUser;
 import main.java.tukano.api.Users;
 import main.java.tukano.api.rest.RestUsers;
 
@@ -18,12 +18,12 @@ public class RestUsersResource extends RestResource implements RestUsers {
 	}
 	
 	@Override
-	public String createUser(User user) {
+	public String createUser(TukanoUser user) {
 		return super.resultOrThrow( impl.createUser( user));
 	}
 
 	@Override
-	public User getUser(String name, String pwd) {
+	public TukanoUser getUser(String name, String pwd) {
 		var result = super.resultOrThrow( impl.getUser(name, pwd));
 		if (result != null) {
 
@@ -32,17 +32,17 @@ public class RestUsersResource extends RestResource implements RestUsers {
 	}
 	
 	@Override
-	public User updateUser(String name, String pwd, User user) {
+	public TukanoUser updateUser(String name, String pwd, TukanoUser user) {
 		return super.resultOrThrow( impl.updateUser(name, pwd, user));
 	}
 
 	@Override
-	public User deleteUser(String name, String pwd) {
+	public TukanoUser deleteUser(String name, String pwd) {
 		return super.resultOrThrow( impl.deleteUser(name, pwd));
 	}
 
 	@Override
-	public List<User> searchUsers(String pattern) {
+	public List<TukanoUser> searchUsers(String pattern) {
 		return super.resultOrThrow( impl.searchUsers( pattern));
 	}
 }
