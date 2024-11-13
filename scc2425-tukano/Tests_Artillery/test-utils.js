@@ -10,15 +10,26 @@ module.exports = {
     prepareUpdateUser,
     processDeleteReply,
     processUpdateReply,
-    generateSearchPattern
+    generateSearchPattern,
+    registerUserIfEmpty,
+    createRandomShort,
+    registerUserAndCreateShortIfEmpty,
+    processShortCreation,
+    loadShortFromRegistered,
+    prepareFollowRequest,
+    prepareLikeRequest
 }
 
 
-const fs = require('fs') // Needed for access to blobs.
+const fs = require('fs')
+const events = require("node:events");
+const {join} = require("node:path"); // Needed for access to blobs.
 
 var registeredUsers = []
 var unregisteredUsers = []
 var images = []
+var videos = []
+var registeredShorts = []
 
 // All endpoints starting with the following prefixes will be aggregated in the same for the statistics
 var statsPrefix = [ ["/rest/media/","GET"],
@@ -34,6 +45,8 @@ global.myProcessEndpoint = function( str, method) {
     }
     return method + ":" + str;
 }
+
+//User Tests
 
 // Returns a random username constructed from lowercase letters.
 function randomUsername(char_limit){
@@ -129,8 +142,8 @@ function prepareUpdateUser(requestParams, context, ee, next) {
 
 function processUpdateReply(requestParams, response, context, ee, next) {
     if (response.statusCode === 200) {
-        let n = registeredUsers.findIndex(response.body.userId); //find index of user that was modified
-        registeredUsers.splice(n, 1, response.body); //replace object at index
+        let user = JSON.parse(response.body);
+        registeredUsers.splice(user.userId, 1, user); //replace object at index
     }
     return next();
 }
@@ -142,8 +155,115 @@ function generateSearchPattern(requestParams, context, ee, next) {
 
 function processDeleteReply(requestParams, response, context, ee, next) {
     if (response.statusCode === 200) {
-        let n = registeredUsers.findIndex(user => user.userId === response.body.userId); //find index of user that was removed
+        let userId = JSON.parse(response.body).userId;
+        let n = registeredUsers.findIndex(user => user.userId === userId); //find index of user that was removed
         registeredUsers.splice(n, 1);
     }
     return next();
 }
+
+async function registerUserIfEmpty(requestParams, response, context, ee, next){
+    if (registeredUsers.length === 0) {
+        await this.uploadRandomizedUser(requestParams, context, ee, (err, response) => {
+            if (err) {
+                return next();
+            }
+            this.processRegisterReply(requestParams, response, context, ee, next);
+        });
+    } else {
+        return next();
+    }
+}
+
+//Short tests
+
+async function registerUserAndCreateShortIfEmpty(requestParams, response, context, ee, next){
+    if (registeredShorts.length === 0){
+        await registerUserIfEmpty(requestParams, response, context, ee, next);
+        await this.createRandomShort(requestParams, response, context, ee, (err, response) => {
+            if (err) {
+                return next();
+            }
+            this.processShortCreation(requestParams, response, context, ee, next);
+        });
+    }
+    return next();
+}
+
+function createRandomShort(requestParams, response, context, ee, next){
+    if (registeredUsers.length > 0) {
+        let n = Math.floor(Math.random() * (registeredUsers.length)) //gets random user
+        const user = registeredUsers[n];
+        context.userId = user.userId;
+        context.pwd = user.pwd;
+    }
+    return next();
+}
+
+function processShortCreation(requestParams, response, context, ee, next){
+    if( typeof response.body !== 'undefined' && response.body.length > 0) {
+        registeredShorts.push(JSON.parse(response.body));
+        console.log("RegisteredShorts: " + registeredShorts);
+    }
+    return next();
+}
+
+function loadShortFromRegistered(requestParams, response, context, ee, next) {
+    let n = Math.floor(Math.random() * (registeredShorts.length));
+    let short = registeredShorts[n];
+    context.shortId = short.shortId;
+    return next();
+}
+
+async function prepareFollowRequest(requestParams, response, context, ee, next) {
+    while (registeredUsers.length < 2){
+        await this.uploadRandomizedUser(requestParams, context, ee, (err, response) => {
+            if (err) {
+                return next();
+            }
+            this.processRegisterReply(requestParams, response, context, ee, next);
+        });
+    }
+    let n1 = Math.floor(Math.random() * (registeredShorts.length));
+    let n2;
+    do {
+        n2 = Math.floor(Math.random() * (registeredShorts.length));
+    } while (n1 === n2)
+    let userId1 = registeredShorts[n1].ownerId;
+    let userId2 = registeredShorts[n1].ownerId;
+    context.userId1 = userId1;
+    context.userId2 = userId2;
+    let index = registeredUsers.findIndex(x => x.userId === userId1);
+    context.pwd = registeredUsers[index].pwd;
+    context.isFollowing = Math.random() <0.5;
+    return next();
+}
+
+function prepareLikeRequest(requestParams, response, context, ee, next){
+    let n = Math.floor(Math.random() * (registeredShorts.length));
+    context.shortId = registeredShorts[n].shortId;
+    n = Math.floor(Math.random() * (registeredUsers.length));
+    let user = registeredUsers[n];
+    context.userId = user.userId;
+    context.pwd = user.pwd;
+}
+
+
+
+
+
+
+/*
+loadVideosFromDirectory('/data/blobsamples')
+
+function loadVideosFromDirectory(directory) {
+    try {
+        const files = fs.readdirSync(directory);
+        videos = files.filter(file => file.endsWith('.mp4'))
+            .map(file => join(directory, file));
+    } catch (error) {
+        console.error("Error loading video files:", error);
+    }
+}
+ */
+

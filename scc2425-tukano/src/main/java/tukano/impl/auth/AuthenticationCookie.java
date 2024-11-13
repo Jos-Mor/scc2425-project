@@ -1,7 +1,10 @@
 package main.java.tukano.impl.auth;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 
+import javax.ws.rs.core.Context;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -14,12 +17,20 @@ public class AuthenticationCookie {
     private static final SecureRandom secureRandom = new SecureRandom(); //threadsafe
     private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
 
-    public static void createAuthCookie() {
-        String authToken = generateAuthToken();
-        authCookie = new NewCookie(COOKIE_NAME, authToken, "/", null, NewCookie.DEFAULT_VERSION, "auth token", MAX_AGE, false);
+    public void createAuthTCookie(String token, @Context HttpServletResponse response) {
+        // Create a new cookie with name "authToken" and the provided token as its value
+        Cookie authCookie = new Cookie("authToken", token);
+        authCookie.setPath("/");
+        authCookie.setMaxAge(60 * 60 * 24); // 1 day (in seconds)
+        authCookie.setHttpOnly(true);       // Makes the cookie inaccessible to JavaScript
+        authCookie.setSecure(true);         // Send only over HTTPS (if applicable)
+
+        // Add the cookie to the HTTP response
+        response.addCookie(authCookie);
     }
 
-    public static String getToken() {
+
+        public static String getToken() {
         return authCookie != null ? authCookie.getValue() : null;
     }
 
