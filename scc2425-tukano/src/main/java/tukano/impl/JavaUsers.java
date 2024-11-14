@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 import main.java.tukano.api.Result;
 import main.java.tukano.api.TukanoUser;
 import main.java.tukano.api.Users;
-import main.java.tukano.impl.auth.AuthenticationCookie;
 import main.java.tukano.impl.storage.cache.*;
 import main.java.tukano.impl.storage.database.azure.*;
 import main.java.tukano.impl.storage.database.UnavailableDBType;
@@ -66,9 +65,6 @@ public class JavaUsers <T> implements Users {
 			var user = RedisCache.getRedis(j, userId+pwd, u -> JSON.decode(u, TukanoUser.class));
 			if (user.isOK()) {
 				var result = validatedUserOrError(ok(user.value()), pwd);
-				if (result.isOK()){
-					AuthenticationCookie.createAuthCookie();
-				}
 				return result;
 			}
 			return error(NOT_FOUND);
@@ -82,7 +78,6 @@ public class JavaUsers <T> implements Users {
 				RedisCache.setRedis(j, userId+pwd, result.value(), u -> JSON.encode(u) );
 				return ok();
 			});
-			AuthenticationCookie.createAuthCookie();
 		}
 
 		return result;

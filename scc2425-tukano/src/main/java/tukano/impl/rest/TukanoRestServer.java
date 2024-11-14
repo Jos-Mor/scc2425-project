@@ -9,8 +9,6 @@ import main.java.tukano.impl.rest.utils.Props;
 import main.java.utils.IP;
 import jakarta.ws.rs.core.Application;
 
-import main.java.tukano.impl.auth.AuthenticationCookie;
-
 //TODO: fix this code, added a few bits that needed to be added, but professor changed the code too fast to copy it all :/
 //Also, remember to put TukanoRestServer on the pom.xml file
 

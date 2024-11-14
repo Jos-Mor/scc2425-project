@@ -9,10 +9,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.servlet.http.Cookie;
-import main.java.tukano.impl.auth.AuthenticationCookie;
 
 @Path(RestBlobs.PATH)
 public interface RestBlobs {
