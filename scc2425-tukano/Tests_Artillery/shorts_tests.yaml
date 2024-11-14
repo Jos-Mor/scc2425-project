@@ -13,58 +13,9 @@ config:
       arrivalRate: 10
 
 scenarios:
-  - name: 'Register user'
-    weight: 1
-    flow:
-      - post:
-          url: /users/
-          headers:
-            Content-Type: application/json
-            Accept: application/json
-          beforeRequest: "uploadRandomizedUser"
-          afterResponse: "processRegisterReply"
-
-  - name: 'Get User'
-    beforeScenario: "initializeBaseScenario"
-    flow:
-      - get:
-          url: "/users/{{ userId }}?pwd={{ pwd }}"
-          headers:
-            Content-Type: application/json
-          beforeRequest: "loadUserFromRegistered"
-
-  - name: 'Update User'
-    beforeScenario: "initializeBaseScenario"
-    flow:
-      - put:
-          url: "/users/{{ userId }}?pwd={{ pwd }}"
-          headers:
-            Content-Type: application/json
-          beforeRequest: "prepareUpdateUser"
-          afterResponse: "processUpdateReply"
-
-  - name: 'Search Users'
-    flow:
-      - get:
-          url: "/users?query={{ pattern }}"
-          headers:
-            Content-Type: application/json
-          beforeRequest: "generateSearchPattern"
-
-  - name: 'Delete User'
-    beforeScenario: "initializeBaseScenario"
-    flow:
-      - delete:
-          url: "/users/{{ userId }}?pwd={{ pwd }}"
-          headers:
-            Content-Type: application/json
-          beforeRequest: "loadUserFromRegistered"
-          afterResponse: "processDeleteReply"
-
-#Shorts
   - name: 'Create Short'
     weight: 1
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserIfEmpty"
     flow:
       - post:
           url: "/shorts/{{ userId }}?pwd={{ pwd }}"
@@ -74,7 +25,7 @@ scenarios:
           afterResponse: "processShortCreation"
 
   - name: 'Get Short'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserAndCreateShortIfEmpty"
     flow:
       - get:
           url: "/shorts/{{ shortId }}"
@@ -83,7 +34,7 @@ scenarios:
           beforeRequest: "loadShortFromRegistered"
 
   - name: 'Get User Shorts'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserAndCreateShortIfEmpty"
     flow:
       - get:
           url: "/shorts/{{ userId }}/shorts"
@@ -100,7 +51,7 @@ scenarios:
           beforeRequest: "prepareFollowRequest"
 
   - name: 'Get Followers'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserIfEmpty"
     flow:
       - get:
           url: "/shorts/{{ userId }}/followers?pwd={{ pwd }}"
@@ -109,7 +60,7 @@ scenarios:
             beforeRequest: "loadUserFromRegistered"
 
   - name: 'Like Short'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserAndCreateShortIfEmpty"
     flow:
       - post:
           url: "/shorts/{{ shortId }}/{{ userId }}/likes?pwd={{ pwd }}"
@@ -118,7 +69,7 @@ scenarios:
           beforeRequest: "prepareLikeRequest"
 
   - name: 'Get Likes'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserAndCreateShortIfEmpty"
     flow:
       - get:
           url: "/shorts/{{ shortId }}/likes?pwd={{ pwd }}"
@@ -127,7 +78,7 @@ scenarios:
           beforeRequest: "loadShortFromRegistered"
 
   - name: 'Get User Feed'
-    beforeScenario: "initializeBaseScenario"
+    beforeScenario: "registerUserAndCreateShortIfEmpty"
     flow:
       - get:
           url: "/shorts/{{ userId }}/feed?pwd={{ pwd }}"

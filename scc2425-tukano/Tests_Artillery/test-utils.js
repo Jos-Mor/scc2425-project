@@ -155,8 +155,8 @@ function generateSearchPattern(requestParams, context, ee, next) {
 
 function processDeleteReply(requestParams, response, context, ee, next) {
     if (response.statusCode === 200) {
-        let userId = JSON.parse(response.body).userId;
-        let n = registeredUsers.findIndex(user => user.userId === userId); //find index of user that was removed
+        let user = JSON.parse(response.body);
+        let n = registeredUsers.findIndex(x => x.userId === user.userId); //find index of user that was removed
         registeredUsers.splice(n, 1);
     }
     return next();
@@ -164,28 +164,16 @@ function processDeleteReply(requestParams, response, context, ee, next) {
 
 async function registerUserIfEmpty(requestParams, response, context, ee, next){
     if (registeredUsers.length === 0) {
-        await this.uploadRandomizedUser(requestParams, context, ee, (err, response) => {
-            if (err) {
-                return next();
-            }
-            this.processRegisterReply(requestParams, response, context, ee, next);
-        });
-    } else {
-        return next();
+        await initializeBaseScenario(requestParams, context, ee, next);
     }
+    return next();
 }
 
 //Short tests
 
 async function registerUserAndCreateShortIfEmpty(requestParams, response, context, ee, next){
     if (registeredShorts.length === 0){
-        await registerUserIfEmpty(requestParams, response, context, ee, next);
-        await this.createRandomShort(requestParams, response, context, ee, (err, response) => {
-            if (err) {
-                return next();
-            }
-            this.processShortCreation(requestParams, response, context, ee, next);
-        });
+        await initializeBaseScenario(requestParams, context, ee, next);
     }
     return next();
 }
@@ -203,7 +191,6 @@ function createRandomShort(requestParams, response, context, ee, next){
 function processShortCreation(requestParams, response, context, ee, next){
     if( typeof response.body !== 'undefined' && response.body.length > 0) {
         registeredShorts.push(JSON.parse(response.body));
-        console.log("RegisteredShorts: " + registeredShorts);
     }
     return next();
 }
@@ -216,12 +203,13 @@ function loadShortFromRegistered(requestParams, response, context, ee, next) {
 }
 
 async function prepareFollowRequest(requestParams, response, context, ee, next) {
+    let i = 0;
     while (registeredUsers.length < 2){
-        await this.uploadRandomizedUser(requestParams, context, ee, (err, response) => {
+        await uploadRandomizedUser(requestParams, context, ee, async (err, response) => {
             if (err) {
                 return next();
             }
-            this.processRegisterReply(requestParams, response, context, ee, next);
+            await processRegisterReply(requestParams, response, context, ee, next);
         });
     }
     let n1 = Math.floor(Math.random() * (registeredShorts.length));
@@ -229,6 +217,7 @@ async function prepareFollowRequest(requestParams, response, context, ee, next) 
     do {
         n2 = Math.floor(Math.random() * (registeredShorts.length));
     } while (n1 === n2)
+    console.log("Registered shorts: " + registeredShorts);
     let userId1 = registeredShorts[n1].ownerId;
     let userId2 = registeredShorts[n1].ownerId;
     context.userId1 = userId1;
@@ -246,6 +235,7 @@ function prepareLikeRequest(requestParams, response, context, ee, next){
     let user = registeredUsers[n];
     context.userId = user.userId;
     context.pwd = user.pwd;
+    return next();
 }
 
 
@@ -267,3 +257,40 @@ function loadVideosFromDirectory(directory) {
 }
  */
 
+//creating a few users and shorts to access
+async function initializeBaseScenario(requestParams, context, ee, next) {
+    const makeRequest = (requestFunc, responseFunc) => {
+        return new Promise((resolve) => {
+            let reqParams = { headers: { 'Content-Type': 'application/json' } };
+            requestFunc(reqParams, context, ee, () => {
+                ee.emit('request', 'POST', context.currentEndpoint, context);
+                setTimeout(() => {
+                    if (responseFunc) {
+                        responseFunc(reqParams, { statusCode: 200, body: reqParams.body }, context, ee, resolve);
+                    } else {
+                        resolve();
+                    }
+                }, 1000); // Give each request 1 second to complete
+            });
+        });
+    };
+
+    try {
+        // Create initial user if none exist
+        if (registeredUsers.length === 0) {
+            context.currentEndpoint = '/users/';
+            await makeRequest(uploadRandomizedUser, processRegisterReply);
+        }
+
+        // Create initial short if none exist
+        if (registeredShorts.length === 0 && registeredUsers.length > 0) {
+            context.currentEndpoint = '/shorts/';
+            await makeRequest(createRandomShort, processShortCreation);
+        }
+
+    } catch (error) {
+        console.error('Error in initialization:', error);
+    }
+
+    return next();
+}
