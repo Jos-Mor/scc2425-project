@@ -81,7 +81,7 @@ function randomPassword(pass_len){
  * Process reply of the user registration.
  */
 function processRegisterReply(requestParams, response, context, ee, next) {
-    if( typeof response.body !== 'undefined' && response.body.length > 0) {
+    if( response && response.body && response.body.length > 0) {
         let index = unregisteredUsers.findIndex(x => x.userId === response.body);
         if (index !== -1) {
             let user = {...unregisteredUsers[index]}; //create a copy of the user
@@ -141,7 +141,7 @@ function prepareUpdateUser(requestParams, context, ee, next) {
 }
 
 function processUpdateReply(requestParams, response, context, ee, next) {
-    if (response.statusCode === 200) {
+    if (response && response.body && response.body.length > 0) {
         let user = JSON.parse(response.body);
         registeredUsers.splice(user.userId, 1, user); //replace object at index
     }
@@ -154,7 +154,7 @@ function generateSearchPattern(requestParams, context, ee, next) {
 }
 
 function processDeleteReply(requestParams, response, context, ee, next) {
-    if (response.statusCode === 200) {
+    if (response && response.body && response.body.length > 0) {
         let user = JSON.parse(response.body);
         let n = registeredUsers.findIndex(x => x.userId === user.userId); //find index of user that was removed
         registeredUsers.splice(n, 1);
@@ -162,20 +162,26 @@ function processDeleteReply(requestParams, response, context, ee, next) {
     return next();
 }
 
-async function registerUserIfEmpty(requestParams, response, context, ee, next){
-    if (registeredUsers.length === 0) {
-        await initializeBaseScenario(requestParams, context, ee, next);
+function registerUserIfEmpty(requestParams, response, context, ee, next){
+    try {
+        if (registeredUsers.length === 0) {
+            //initializeBaseScenario(requestParams, context, ee, next);
+        }
+    }catch (e){
+    console.error("Error at registerUserAndCreateShortIfEmpty: " + e);
     }
-    return next();
 }
 
 //Short tests
 
-async function registerUserAndCreateShortIfEmpty(requestParams, response, context, ee, next){
-    if (registeredShorts.length === 0){
-        await initializeBaseScenario(requestParams, context, ee, next);
+function registerUserAndCreateShortIfEmpty(requestParams, response, context, ee, next){
+    try {
+        if (registeredUsers.length === 0) {
+            //initializeBaseScenario(requestParams, context, ee, next);
+        }
+    }catch (e){
+        console.error("Error at registerUserAndCreateShortIfEmpty: " + e);
     }
-    return next();
 }
 
 function createRandomShort(requestParams, response, context, ee, next){
@@ -189,7 +195,7 @@ function createRandomShort(requestParams, response, context, ee, next){
 }
 
 function processShortCreation(requestParams, response, context, ee, next){
-    if( typeof response.body !== 'undefined' && response.body.length > 0) {
+    if( response && response.body && response.body.length > 0) {
         registeredShorts.push(JSON.parse(response.body));
     }
     return next();
@@ -202,30 +208,38 @@ function loadShortFromRegistered(requestParams, response, context, ee, next) {
     return next();
 }
 
-async function prepareFollowRequest(requestParams, response, context, ee, next) {
-    let i = 0;
-    while (registeredUsers.length < 2){
-        await uploadRandomizedUser(requestParams, context, ee, async (err, response) => {
-            if (err) {
-                return next();
-            }
-            await processRegisterReply(requestParams, response, context, ee, next);
-        });
+function prepareFollowRequest(requestParams, context, ee, next) {
+    if (registeredUsers.length < 2) {
+        return next();
     }
-    let n1 = Math.floor(Math.random() * (registeredShorts.length));
-    let n2;
-    do {
-        n2 = Math.floor(Math.random() * (registeredShorts.length));
-    } while (n1 === n2)
-    console.log("Registered shorts: " + registeredShorts);
-    let userId1 = registeredShorts[n1].ownerId;
-    let userId2 = registeredShorts[n1].ownerId;
-    context.userId1 = userId1;
-    context.userId2 = userId2;
-    let index = registeredUsers.findIndex(x => x.userId === userId1);
-    context.pwd = registeredUsers[index].pwd;
-    context.isFollowing = Math.random() <0.5;
-    return next();
+
+    try {
+        let n1 = Math.floor(Math.random() * registeredShorts.length);
+        let n2;
+        do {
+            n2 = Math.floor(Math.random() * registeredShorts.length);
+        } while (n1 === n2);
+
+        if (!registeredShorts[n1] || !registeredShorts[n2]) {
+            console.log("No shorts available yet");
+            return next();
+        }
+
+        let userId1 = registeredShorts[n1].ownerId;
+        let userId2 = registeredShorts[n2].ownerId;
+        context.userId1 = userId1;
+        context.userId2 = userId2;
+        let index = registeredUsers.findIndex(x => x.userId === userId1);
+        if (index !== -1) {
+            context.pwd = registeredUsers[index].pwd;
+        }
+        context.isFollowing = Math.random() < 0.5;
+
+        return next();
+    } catch (error) {
+        console.error('Error in prepareFollowRequest:', error);
+        return next(error);
+    }
 }
 
 function prepareLikeRequest(requestParams, response, context, ee, next){
@@ -237,10 +251,6 @@ function prepareLikeRequest(requestParams, response, context, ee, next){
     context.pwd = user.pwd;
     return next();
 }
-
-
-
-
 
 
 /*
@@ -257,20 +267,31 @@ function loadVideosFromDirectory(directory) {
 }
  */
 
-//creating a few users and shorts to access
+
+/*
+//creating a few base users and shorts to access
 async function initializeBaseScenario(requestParams, context, ee, next) {
+    if (!context) { // Initialize context if it doesn't exist
+        context = {};
+    }
+
     const makeRequest = (requestFunc, responseFunc) => {
         return new Promise((resolve) => {
             let reqParams = { headers: { 'Content-Type': 'application/json' } };
             requestFunc(reqParams, context, ee, () => {
-                ee.emit('request', 'POST', context.currentEndpoint, context);
+                if (ee && typeof ee.emit === 'function') {
+                    ee.emit('request', 'POST', context.currentEndpoint, context);
+                }
+
                 setTimeout(() => {
+                    const responseBody = reqParams.body || "{}"; // Ensure response body is defined
+                    const response = { statusCode: 200, body: responseBody };
                     if (responseFunc) {
-                        responseFunc(reqParams, { statusCode: 200, body: reqParams.body }, context, ee, resolve);
+                        responseFunc(reqParams, response, context, ee, resolve);
                     } else {
                         resolve();
                     }
-                }, 1000); // Give each request 1 second to complete
+                }, 1000);
             });
         });
     };
@@ -291,6 +312,6 @@ async function initializeBaseScenario(requestParams, context, ee, next) {
     } catch (error) {
         console.error('Error in initialization:', error);
     }
-
-    return next();
 }
+*/
+
